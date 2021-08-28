@@ -113,30 +113,48 @@ function Funs:scr_lock_if()
 		return Cmds['scr_lock']
 	end
 end
+function wm_info()
+   local h = assert(io.popen("wmctrl -m"))
+   local wm
+   for line in h:lines() do
+	  wm = line:match("Name:%s(%w+)")
+	  if wm then break end
+   end
+   return {wm=wm}
+end
 function Funs:tmenu_exit()
-	local exit_with = {
-		lock = Cmds["scr_lock"],
-		logout = "i3-msg exit",
-		suspend = "systemctl suspend",
-		hibernate = "systemctl hibernate",
-		reboot = "systemctl reboot",
-		shutdown = "systemctl poweroff -i"
-	}
+   local wminf = wm_info()
+   local wxitf = ""
+   if wminf.wm == 'bspwm' then
+	  wxitf = "bspc quit"
+   end
+   if wminf.wm == 'i3wm' then
+	  wxitf = "i3-msg exit"
+   end
 
-	local opts = ""
-	for k,v in pairs(exit_with) do
-		opts = opts .. k .. "\n"
-	end
+   local exit_with = {
+	  lock = Cmds["scr_lock"],
+	  logout = wxitf,
+	  suspend = "systemctl suspend",
+	  hibernate = "systemctl hibernate",
+	  reboot = "systemctl reboot",
+	  shutdown = "systemctl poweroff -i"
+   }
 
-	Pr.pipe()
-	.add(Sh.exec(string.format('echo "%s" | %s', opts, Cfg.menu_sel)))
-	.add(function(name)
-		Util:exec(exit_with[name])
-	end)
-	.run()
+   local opts = ""
+   for k,v in pairs(exit_with) do
+	  opts = opts .. k .. "\n"
+   end
+
+   Pr.pipe()
+	  .add(Sh.exec(string.format('echo "%s" | %s', opts, Cfg.menu_sel)))
+	  .add(function(name)
+			Util:exec(exit_with[name])
+		  end)
+	  .run()
 end
 function Funs:dmenu_exit()
-	Util:exec(Cfg.pop_term .. " fun tmenu_exit")
+   Util:exec(Cfg.pop_term .. " fun tmenu_exit")
 end
 
 return Funs

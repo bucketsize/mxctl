@@ -13,11 +13,13 @@ DISPLAY_ON = [[
 			--output %s \
 			--mode %dx%d \
 			--rotate normal \
-			--pos %dx%d %s]]
+			--pos %dx%d %s
+]]
 DISPLAY_OFF = [[
 		xrandr \
 			--output %s \
-			--off ]]
+			--off
+]]
 
 function xrandr_info()
 	local h = assert(io.popen("xrandr -q"))
