@@ -6,6 +6,7 @@ local Util = require('minilib.util')
 local Ot = require('minilib.otable')
 local Cfg = require('mxctl.config')
 local Cmds = require('mxctl.control_cmds')
+local appcache = "/tmp/exec-apps.lua"
 
 local Funs = {}
 function Funs:tmenu_select_window()
@@ -75,11 +76,14 @@ function Funs:find()
 			return app
 		  end)
 	  .run()
-   Util:tofile("/tmp/exec-apps.lua", apps)
+   Util:tofile(appcache, apps)
 end
 
 function Funs:findcached()
-   local apps = Util:fromfile("/tmp/exec-apps.lua")
+   if not Util:file_exists(appcache) then
+	  Funs:find()
+   end
+   local apps = Util:fromfile(appcache)
    for k, v in apps:opairs() do
 	  print(k)
    end

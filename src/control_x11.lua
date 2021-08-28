@@ -32,11 +32,11 @@ function xrandr_info()
 				ots[ot] = {modes={}}
 			end
 		else
-			if not (ot == nil) then
+			if ot then
 				local mx, my = string.match(line, "%s+(%d+)x(%d+)")
 				if not (my == nil) then
 					table.insert(ots[ot].modes, {x=mx, y=my})
-					--print(ot, mx, my)
+					-- print(ot, mx, my)
 				end
 			end
 		end
@@ -65,57 +65,69 @@ function getElem(t, indexes)
 	end
 end
 
+function outgrid_config(outgrid, d, o)
+   if o then
+	  local mode = o.modes[1]
+	  for i,m in ipairs(o.modes) do
+		 --print("?y", m.x, m.y, d.mode, type(m.y), type(d.mode))
+		 if (tonumber(m.y) == d.mode.y) and (tonumber(m.x) == d.mode.x) then
+			--print("configure", d.name, d.pos[1], d.pos[2])
+			mode = m
+			break
+		 end
+	  end
+	  o.name = d.name
+	  o.mode = mode
+	  o.pos = d.pos
+	  o.extra_opts = d.extra_opts
+	  outgrid[d.pos[1]] = {}
+	  outgrid[d.pos[1]][d.pos[2]] = o
+   end
+end
+
+function outgrid_controls_config(outgrid, outgrid_ctl, d, o)
+   local x, y = d.pos[1], d.pos[2]
+   local o = get2dElem(outgrid, x, y)
+   if o then
+	  local off_xo, off_yo = get2dElem(outgrid, x-1, y), get2dElem(outgrid, x, y-1)
+	  local off_x, off_y
+	  if off_xo == nil then
+		 off_x = 0
+	  else
+		 off_x = off_xo.mode.x * d.pos[1]
+	  end
+	  if off_yo == nil then
+		 off_y = 0
+	  else
+		 off_y = off_xo.mode.y * d.pos[2]
+	  end
+
+	  local dOn = string.format(DISPLAY_ON
+								, o.name
+								, o.mode.x, o.mode.y
+								, off_x, off_y
+								, o.extra_opts)
+	  local dOff = string.format(DISPLAY_OFF, o.name)
+	  outgrid_ctl[d.name .. " on"]  = dOn
+	  outgrid_ctl[d.name .. " off"] = dOff
+   end
+end
+
+
 function xrandr_configs()
-	local outputs = xrandr_info()
-	local outgrid = {}
-	for i,d in ipairs(DISPLAYS) do
-		--print("configure", i, d.name)
-		local o = outputs[d.name]
-		local mode = o.modes[1]
-		for i,m in ipairs(o.modes) do
-			--print("?y", m.x, m.y, d.mode, type(m.y), type(d.mode))
-			if (tonumber(m.y) == d.mode.y) and (tonumber(m.x) == d.mode.x) then
-				--print("configure", d.name, d.pos[1], d.pos[2])
-				mode = m
-				break
-			end
-		end
-		o.name = d.name
-		o.mode = mode
-		o.pos = d.pos
-		o.extra_opts = d.extra_opts
-		outgrid[d.pos[1]] = {}
-		outgrid[d.pos[1]][d.pos[2]] = o
-	end
+   local outputs = xrandr_info()
+   local outgrid = {}
+   for i,d in ipairs(DISPLAYS) do
+	  -- print("configure", i, d.name)
+	  local o = outputs[d.name]
+	  outgrid_config(outgrid, d, o)
+   end
 
-	local outsetup, outgrid_ctl = {}, {}
-	for i,d in ipairs(DISPLAYS) do
-		local x, y = d.pos[1], d.pos[2]
-		local o = get2dElem(outgrid, x, y)
-		local off_xo, off_yo = get2dElem(outgrid, x-1, y), get2dElem(outgrid, x, y-1)
-		local off_x, off_y
-		if off_xo == nil then
-			off_x = 0
-		else
-			off_x = off_xo.mode.x * d.pos[1]
-		end
-		if off_yo == nil then
-			off_y = 0
-		else
-			off_y = off_xo.mode.y * d.pos[2]
-		end
-
-		local dOn = string.format(DISPLAY_ON
-				, o.name
-				, o.mode.x, o.mode.y
-				, off_x, off_y
-			  , o.extra_opts)
-		local dOff = string.format(DISPLAY_OFF, o.name)
-		outgrid_ctl[d.name .. " on"]  = dOn
-		outgrid_ctl[d.name .. " off"] = dOff
-		table.insert(outsetup, dOn)
-	end
-	return outsetup, outgrid_ctl
+   local outgrid_ctl = {}
+   for i,d in ipairs(DISPLAYS) do
+	  outgrid_controls_config(outgrid, outgrid_ctl, d, o)
+   end
+   return outsetup, outgrid_ctl
 end
 
 local Funs = {}

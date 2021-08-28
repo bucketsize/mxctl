@@ -2,7 +2,7 @@ return
    {
 	  menu_sel = "fzy",
 	  ctrl_bin = "~/.luarocks/bin/mxctl.control",
-	  pop_term = 'alacritty -t popeye -o window.dimensions.columns=64 -o window.dimensions.lines=16 -e ~/.luarocks/bin/mxctl.control',
+	  pop_term = 'alacritty --class Popeye -t popeye -o window.dimensions.columns=64 -o window.dimensions.lines=16 -e ~/.luarocks/bin/mxctl.control',
 
 	  displays = {
 		 {
