@@ -110,6 +110,7 @@ function outgrid_controls_config(outgrid, outgrid_ctl, d, o)
 								, off_x, off_y
 								, o.extra_opts)
 	  local dOff = string.format(DISPLAY_OFF, o.name)
+
 	  outgrid_ctl[d.name .. " on"]  = dOn
 	  outgrid_ctl[d.name .. " off"] = dOff
    end
@@ -129,13 +130,15 @@ function xrandr_configs()
    for i,d in ipairs(DISPLAYS) do
 	  outgrid_controls_config(outgrid, outgrid_ctl, d, o)
    end
-   return outsetup, outgrid_ctl
+   return outgrid, outgrid_ctl
 end
 
 local Funs = {}
 function Funs:setup_video()
-	local setup, _ = xrandr_configs()
-	return setup
+	local outgrid, outgrid_ctl = xrandr_configs()
+	for i,d in ipairs(DISPLAYS) do
+		Util:exec(outgrid_ctl[d.name .. " on"])
+	end
 end
 
 function Funs:tmenu_setup_video()

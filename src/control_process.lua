@@ -35,7 +35,7 @@ function Funs:dmenu_select_window()
 	Util:exec(Cfg.menu_sel .. "fun tmenu_select_window")
 end
 function Funs:find()
-   local paths = "/usr/local/bin/ ~/.local/bin ~/.local/share/flatpak/exports/share/applications /usr/share/applications"
+   local paths = Cfg.app_dirs
    local apps = Ot.newT()
    Pr.pipe()
 	  .add(Sh.exec(string.format('find %s -type f,l', paths)))
@@ -55,6 +55,7 @@ function Funs:find()
    Pr.pipe()
 	  .add(Sh.exec(string.format('find %s -type f,l -name "*.desktop"', paths)))
 	  .add(function(x)
+		  --	print('found', x)
 			local app = {}
 			Pr.pipe()
 			   .add(Sh.cat(x))
@@ -72,6 +73,12 @@ function Funs:find()
 					 return ar
 				   end)
 			   .run()
+			if not app.exec then
+			    app.exec = "ze_dummy"
+			end
+			if not app.name then
+			    app.name = "zi_dummy"
+			end
 			apps[app.exec .. ": " .. app.name] = app.exec
 			return app
 		  end)

@@ -15,6 +15,7 @@ build = {
 	type = "none",
 	install = {
 		lua = {
+			["mxctl.config0"] = "src/config0.lua",
 			["mxctl.config"] = "src/config.lua",
 			["mxctl.control_cmds"] = "src/control_cmds.lua",
 			["mxctl.control_process"] = "src/control_process.lua",
