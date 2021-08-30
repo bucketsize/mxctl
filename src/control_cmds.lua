@@ -7,7 +7,7 @@ local Cmds = {
 	vol_mute    = 'pactl set-sink-mute   @DEFAULT_SINK@ toggle',
 	vol_unmute  = 'pactl set-sink-mute   @DEFAULT_SINK@ toggle',
 
-	scr_lock    = '~/scripts/xdg/x.lock-i3.sh',
+	scr_lock    = 'xlock -dpmsoff 60 -mode random -modelist swarm,pacman,molecule,hyper',
 
 	scr_cap     = 'import -window root ~/Pictures/$(date +%Y%m%dT%H%M%S).png',
 	scr_cap_sel = 'import ~/Pictures/$(date +%Y%m%dT%H%M%S).png',
