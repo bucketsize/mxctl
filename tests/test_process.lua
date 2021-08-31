@@ -19,6 +19,11 @@ function test_findapps()
    end
 end
 
+function test_parsedesktopfile()
+   parsedesktopfile = Ctl.Funs['parsedesktopfile']
+   parsedesktopfile("/usr/share/applications/chromium-browser.desktop")
+end
 
 test_list()
 test_findapps()
+test_parsedesktopfile()

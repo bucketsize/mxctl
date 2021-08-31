@@ -34,67 +34,6 @@ end
 function Funs:dmenu_select_window()
 	Util:exec(Cfg.menu_sel .. "fun tmenu_select_window")
 end
-function Funs:find()
-   local paths = Cfg.app_dirs
-   local apps = Ot.newT()
-   Pr.pipe()
-	  .add(Sh.exec(string.format('find %s -type f,l', paths)))
-	  .add(Pr.filter(function(x)
-				 if string.match(x, ".desktop") then
-					return false
-				 else
-					return true
-				 end
-		  end))
-	  .add(function(x)
-			local ps = Util:segpath(x)
-			apps[ps[#ps]] = x
-			return x
-		  end)
-	  .run()
-   Pr.pipe()
-	  .add(Sh.exec(string.format('find %s -type f,l -name "*.desktop"', paths)))
-	  .add(function(x)
-		  --	print('found', x)
-			local app = {}
-			Pr.pipe()
-			   .add(Sh.cat(x))
-			   .add(Pr.branch()
-					.add(Sh.grep("Exec=([%w%s-_/]+)"))
-					.add(Sh.grep("Name=([%w%s-_/]+)"))
-					.build())
-			   .add(function(ar)
-					 if ar[1] then
-						app["exec"] = ar[1][1]
-					 end
-					 if ar[2] then
-						app["name"] = ar[2][1]
-					 end
-					 return ar
-				   end)
-			   .run()
-			if not app.exec then
-			    app.exec = "ze_dummy"
-			end
-			if not app.name then
-			    app.name = "zi_dummy"
-			end
-			apps[app.exec .. ": " .. app.name] = app.exec
-			return app
-		  end)
-	  .run()
-   Util:tofile(appcache, apps)
-end
-
-function Funs:findcached()
-   if not Util:file_exists(appcache) then
-	  Funs:find()
-   end
-   local apps = Util:fromfile(appcache)
-   for k, v in apps:opairs() do
-	  print(k)
-   end
-end
 
 function Funs:tmenu_run()
    local list_apps = string.format('%s fun findcached | %s', Cfg.ctrl_bin, Cfg.menu_sel)

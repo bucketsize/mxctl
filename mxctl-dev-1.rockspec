@@ -21,6 +21,7 @@ build = {
 			["mxctl.control_process"] = "src/control_process.lua",
 			["mxctl.control_pulseaudio"] = "src/control_pulseaudio.lua",
 			["mxctl.control_x11"] = "src/control_x11.lua",
+			["mxctl.control_app"] = "src/control_app.lua",
 			["mxctl.control"] = "src/control.lua",
 		},
 		bin = {
