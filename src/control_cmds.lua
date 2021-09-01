@@ -29,8 +29,6 @@ local Cmds = {
 			-killtime 10 -killer "notify-send -u critical -t 10000 -- 'Killing system ...'"
 			-notify 30 -notifier "notify-send -u critical -t 10000 -- 'Locking system ETA 30s ...'";
 	]],
-
-	popeye = Config.pop_term
 }
 
 return Cmds

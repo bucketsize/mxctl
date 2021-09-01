@@ -6,6 +6,8 @@ local Util = require('minilib.util')
 local Cfg = require('mxctl.config')
 local Cmds = require('mxctl.control_cmds')
 
+local pop_term = string.format("%s %s", Cfg.pop_term, Cfg.pop_termopts[Cfg.pop_term])
+
 function pa_sinks()
 	local iv = Pr.pipe()
 	.add(Sh.exec('pacmd list-sinks'))
@@ -29,7 +31,7 @@ function Funs:tmenu_select_pa_sinks()
 	.run()
 end
 function Funs:dmenu_select_pa_sinks()
-	Util:exec(Cfg.pop_term .. " fun tmenu_select_pa_sinks")
+	Util:exec(pop_term .. " fun tmenu_select_pa_sinks")
 end
 
 return Funs

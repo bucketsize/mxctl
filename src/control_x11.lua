@@ -6,6 +6,8 @@ local Util = require('minilib.util')
 local Cmds = require('mxctl.control_cmds')
 local Cfg = require('mxctl.config')
 
+local pop_term = Cfg:build_pop_term()
+
 DISPLAYS = Cfg.displays
 
 DISPLAY_ON = [[
@@ -157,7 +159,7 @@ function Funs:tmenu_setup_video()
 end
 
 function Funs:dmenu_setup_video()
-	Util:exec(Cfg.pop_term .. " fun tmenu_setup_video")
+	Util:exec(pop_term .. " fun tmenu_setup_video")
 end
 
 return Funs

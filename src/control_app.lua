@@ -51,7 +51,12 @@ function F:parsedesktopfile(f)
 end
 
 function F:find()
-	local paths = Cfg.app_dirs
+	-- local ps = Util:filter(function(x)
+	-- 	return Util:file_exists(x)
+	-- end, Cfg.app_dirs)
+
+	local paths = Util:join(" ", Cfg.app_dirs)
+	print("paths -> ".. paths)
 	local apps = Ot.newT()
 
 	Pr.pipe()
@@ -85,7 +90,7 @@ end
 
 function F:findcached()
 	if not Util:file_exists(appcache) then
-		Funs:find()
+		F:find()
 	end
 	local apps = Util:fromfile(appcache)
 	for k, v in apps:opairs() do

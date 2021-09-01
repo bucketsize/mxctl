@@ -8,6 +8,8 @@ local Cfg = require('mxctl.config')
 local Cmds = require('mxctl.control_cmds')
 local appcache = "/tmp/exec-apps.lua"
 
+local pop_term = Cfg:build_pop_term()
+
 local Funs = {}
 function Funs:tmenu_select_window()
 	local ws = {}
@@ -46,7 +48,7 @@ function Funs:tmenu_run()
 	  .run()
 end
 function Funs:dmenu_run()
-	Util:exec(Cfg.pop_term .. " fun tmenu_run")
+	Util:exec(pop_term .. " fun tmenu_run")
 end
 function Funs:scr_lock_if()
 	local iv = Pr.pipe()
@@ -100,7 +102,7 @@ function Funs:tmenu_exit()
 	  .run()
 end
 function Funs:dmenu_exit()
-   Util:exec(Cfg.pop_term .. " fun tmenu_exit")
+   Util:exec(pop_term .. " fun tmenu_exit")
 end
 
 return Funs
