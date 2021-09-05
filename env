@@ -2,6 +2,3 @@ eval $(luarocks path)
 
 export LUA_PATH="$HOME/?.lua;$LUA_PATH"
 export PATH=~/.luarocks/bin:$PATH
-
-rm ~/.local/bin/mxctl.control
-ln -s $(pwd)/control.lua ~/.local/bin/mxctl.control
