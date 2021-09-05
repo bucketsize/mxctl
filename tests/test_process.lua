@@ -1,4 +1,9 @@
-require "luarocks.loader"
+#!/usr/bin/env lua
+
+package.path = os.getenv("HOME") .. '/?.lua;'
+    .. package.path
+
+-- require "luarocks.loader"
 
 local Ctl = require("mxctl.control")
 
