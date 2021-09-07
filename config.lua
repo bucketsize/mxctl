@@ -9,15 +9,14 @@ else
 end
 
 Cfg.pop_termopts = {
-   alacritty = '-t Popeye -o window.dimensions.columns=64 -o window.dimensions.lines=16 -e '..Cfg.ctrl_bin,
-   lxterminal = '-t Popeye --geometry=64x16 -e '..Cfg.ctrl_bin,
-   xterm = '-title Popeye -geom 64x16 -e '..Cfg.ctrl_bin,
-   urxvt = '-title Popeye -geometry 64x16 -e '..Cfg.ctrl_bin,
+   alacritty = '--class Popeye -o window.dimensions.columns=64 -o window.dimensions.lines=16 -e '..Cfg.ctrl_bin,
+   xterm = '-name Popeye -geom 64x16 -e '..Cfg.ctrl_bin,
+   urxvt = '-name Popeye -geometry 64x16 -e '..Cfg.ctrl_bin,
 }
 
 function Cfg:build_pop_term()
     if not Cfg.pop_termopts[Cfg.pop_term] then
-        print("bad pop_term in config")
+        print("not supporting "..Cfg.pop_term)
         print(".. using `urxvt` please install")
         Cfg.pop_term = "urxvt"
     end
