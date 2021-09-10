@@ -18,7 +18,7 @@ end
 
 function buildapp(tag, bs, b)
     if (b.name and b.exec) and (not hazapp(bs, b)) then
-        print(string.format("%s > %s >> %s => %s|", tag, b.bin, b.name, b.exec))
+        -- print(string.format("%s > %s >> %s => %s|", tag, b.bin, b.name, b.exec))
         table.insert(bs, b)
     end
 end
@@ -60,7 +60,7 @@ function F:find()
     -- end, Cfg.app_dirs)
 
     local paths = Util:join(" ", Cfg.app_dirs)
-    print("paths -> ".. paths)
+    --print("paths -> ".. paths)
     local apps = Ot.newT()
 
     Pr.pipe()
