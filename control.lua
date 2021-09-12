@@ -20,6 +20,7 @@ mergeWith(Funs, require('mxctl.control_x11'))
 mergeWith(Funs, require('mxctl.control_app'))
 mergeWith(Funs, require('mxctl.control_process'))
 mergeWith(Funs, require('mxctl.control_pulseaudio'))
+mergeWith(Funs, require('mxctl.control_wallpaper'))
 
 ------------------------------------------------------
 local Fn = {}

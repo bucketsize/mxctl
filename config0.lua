@@ -6,6 +6,12 @@
 	  menu_sel = "fzy",
 	  ctrl_bin = "mxctl.control",
 	  pop_term = 'urxvt',
+      
+      -- relative to $HOME
+      wallpapermode = "folder", -- new|fixed|cycle|folder
+      wallpaperscache = ".wlprs", 
+      wallpaperfixd = "Pictures/wallpapertip_halo-master-chief-wallpaper_2221578.jpg",
+      wallpapersdir = "Pictures",
 
 	  displays = {
 		 {
