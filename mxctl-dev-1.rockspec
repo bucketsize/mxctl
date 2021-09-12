@@ -22,6 +22,7 @@ build = {
 			["mxctl.control_pulseaudio"] = "control_pulseaudio.lua",
 			["mxctl.control_x11"] = "control_x11.lua",
 			["mxctl.control_app"] = "control_app.lua",
+			["mxctl.control_wallpaper"] = "control_wallpaper.lua",
 		},
 		bin = {
 			["mxctl.control"] = "control.lua",
