@@ -68,15 +68,19 @@ end
 
 local F = {}
 function F:getwallpaper(provider)
-    if not provider then provide = "bing" end
+    if not provider then provider = "bing" end
     if not urlr[provider] then 
         error("invalid provider: "..provider)
     end
     local pro = urlr[provider]
-    local stream1, err = geturlonsuccess(pro.url())
-    local body, err = stream1:get_body_as_string()
+    local stream1, err1 = geturlonsuccess(pro.url())
     if err then
-        print("Error:", err)
+        print("Error on request:", err1)
+        return
+    end
+    local body, err2 = stream1:get_body_as_string()
+    if err then
+        print("Error reading response:", err2)
         return
     end
 	local url, name = pro.parse(body)
@@ -88,7 +92,7 @@ function F:getwallpaper(provider)
     local f, ferr, fcode = stream:save_body_to_file(file, 2)
     file:close()
     if ferr then
-        print(ferr, fcode)
+        print("Error saving file: ", ferr, fcode)
     end
     return wlprs..name
 end
