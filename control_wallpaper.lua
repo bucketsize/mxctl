@@ -56,11 +56,11 @@ function geturlonsuccess(url)
 		.new_from_uri(url)
 		:go()
     if err then
-        print("Error:", err, status)
+        print(string.format("Error get [%s]: %s, %s", url, err, status))
         return nil, err
     end
 	if headers:get ":status" ~= "200" then
-		print("Error:", err, status)
+        print(string.format("Error get [%s]: %s, %s", url, err, status))
 		return nil, "error: httpstatus = "..status
 	end
     return stream, nil
@@ -72,14 +72,15 @@ function F:getwallpaper(provider)
     if not urlr[provider] then 
         error("invalid provider: "..provider)
     end
+    print("Using wallpaper provider:"..provider) 
     local pro = urlr[provider]
     local stream1, err1 = geturlonsuccess(pro.url())
-    if err then
+    if err1 then
         print("Error on request:", err1)
         return
     end
     local body, err2 = stream1:get_body_as_string()
-    if err then
+    if err2 then
         print("Error reading response:", err2)
         return
     end
