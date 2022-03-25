@@ -13,9 +13,8 @@ function mergeWith(f, t)
    return f
 end
 
-local Cmds = require('mxctl.control_cmds')
-
 local Funs = {}
+mergeWith(Funs, require('mxctl.control_cmds'))
 mergeWith(Funs, require('mxctl.control_x11'))
 mergeWith(Funs, require('mxctl.control_app'))
 mergeWith(Funs, require('mxctl.control_process'))
@@ -24,15 +23,6 @@ mergeWith(Funs, require('mxctl.control_wallpaper'))
 
 ------------------------------------------------------
 local Fn = {}
-function Fn:cmd(key)
-   local cmd = Cmds[key]
-   if cmd then
-      print('cmd>', cmd)
-      Util:exec(cmd)
-   else
-      print('cmd: ', key, 'not mapped')
-   end
-end
 function Fn:fun(key)
    local cmd = Funs[key]
    if cmd then
@@ -51,10 +41,6 @@ function Fn:fun(key)
    end
 end
 function Fn:help()
-   print("cmd")
-   for k,v in pairs(Cmds) do
-      print('\t',k)
-   end
    print("fun")
    for k,v in pairs(Funs) do
       print('\t',k)
@@ -68,4 +54,4 @@ else
    fn(fn, arg[2])
 end
 
-return {Cmds = Cmds, Funs = Funs }
+return {Funs = Funs }

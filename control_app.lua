@@ -25,7 +25,7 @@ end
 
 local F={}
 function F:parsedesktopfile(f)
-    local h = assert(io.open(f), "r")
+    local h = io.open(f, "r")
     local bs, b = {}, {}
     local i = 0
     for l in h:lines() do
@@ -46,6 +46,10 @@ function F:parsedesktopfile(f)
                         b.bin = b.exec
                     end
                 end
+                -- print("[]debug")
+                -- print(exec)
+                -- print(b.exec)
+                -- print(b.bin)
             end
         end
     end
@@ -55,17 +59,18 @@ function F:parsedesktopfile(f)
 end
 
 function F:find()
-    -- local ps = Util:filter(function(x)
-    -- 	return Util:file_exists(x)
-    -- end, Cfg.app_dirs)
-
     local paths = Util:join(" ", Cfg.app_dirs)
-    --print("paths -> ".. paths)
-    local apps = Ot.newT()
+    --print("paths:", paths)
 
+    local apps = {}
+
+    -- find exes
     Pr.pipe()
     .add(Sh.exec(string.format('find %s -type f,l', paths)))
     .add(Pr.filter(function(x)
+        if x == nil then
+            return false
+        end
         if string.match(x, ".desktop") then
             return false
         else
@@ -73,15 +78,22 @@ function F:find()
         end
     end))
     .add(function(x)
-        local ps = Util:segpath(x)
-        apps[ps[#ps]] = x
+        if x == nil then
+            return x
+        end
+        local p = Sh.split_path(x)
+        apps[p] = x
         return x
     end)
     .run()
 
+    -- find apps
     Pr.pipe()
     .add(Sh.exec(string.format('find %s -type f,l -name "*.desktop"', paths)))
     .add(function(x)
+        if x == nil then
+            return
+        end
         local ds = F:parsedesktopfile(x)
         for i,d in ipairs(ds) do
             apps[d.bin .. ": " .. d.name] = d.exec
@@ -89,15 +101,16 @@ function F:find()
     end)
     .run()
 
+    print("discovered [apps+exes]:", Util:size(apps))
     Util:tofile(appcache, apps)
 end
 
 function F:findcached()
-    if not Util:file_exists(appcache) then
+    if not Sh.path_exists(appcache) then
         F:find()
     end
     local apps = Util:fromfile(appcache)
-    for k, v in apps:opairs() do
+    for k, v in pairs(apps) do
         print(k)
     end
     return apps

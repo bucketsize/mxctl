@@ -1,10 +1,11 @@
    return {
 	  app_dirs = {
 			"/usr/local/bin",
-			"/usr/share/applications"
+			"/usr/share/applications",
+            "~/.local/share/applications"
 		},
 	  menu_sel = "fzy",
-	  ctrl_bin = "mxctl.control",
+	  ctrl_bin = "~/.luarocks/bin/mxctl.control",
 	  pop_term = 'urxvt',
       
       -- relative to $HOME

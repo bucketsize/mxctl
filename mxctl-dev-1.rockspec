@@ -8,8 +8,9 @@ description = {
    license = "EULA"
 }
 dependencies = {
-   "lua >= 5.3",
-   "minilib"
+   "lua >= 5.1",
+   "minilib",
+   "http"
 }
 build = {
 	type = "none",

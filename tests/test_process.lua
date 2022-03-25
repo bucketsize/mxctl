@@ -3,30 +3,20 @@
 package.path = os.getenv("HOME") .. '/?.lua;'
     .. package.path
 
--- require "luarocks.loader"
-
+local Util = require("minilib.util")
 local Ctl = require("mxctl.control")
 
 function test_list()
-   for k,v in pairs(Ctl.Cmds) do
-	  print("cmd:", k)
-   end
-   for k,v in pairs(Ctl.Funs) do
-	  print("fun:", k)
-   end
+   assert(Ctl.Funs.find)
 end
 
 function test_findapps()
-   Ctl.Funs['find']()
-   local apps = Ctl.Funs['findcached']()
-   for k,v in apps.opairs() do
-	  print("app:", k)
-   end
+   Ctl.Funs.find()
 end
 
 function test_parsedesktopfile()
    parsedesktopfile = Ctl.Funs['parsedesktopfile']
-   parsedesktopfile("/usr/share/applications/chromium-browser.desktop")
+   parsedesktopfile(nil, "/usr/share/applications/chromium-browser.desktop")
 end
 
 test_list()
