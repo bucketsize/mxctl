@@ -38,15 +38,18 @@ function Funs:dmenu_select_window()
 end
 
 function Funs:tmenu_run()
-   local list_apps = string.format('%s fun findcached | %s', Cfg.ctrl_bin, Cfg.menu_sel)
-   Pr.pipe()
-	  .add(Sh.exec(list_apps))
-	  .add(function(app)
-			local apps = Util:fromfile("/tmp/exec-apps.lua")
-			Util:launch(apps[app])
-		  end)
-	  .run()
-end
+    local list_apps = string.format('%s fun findcached | %s', Cfg.ctrl_bin, Cfg.menu_sel)
+    Pr.pipe()
+        .add(Sh.exec(list_apps))
+        .add(function(app)
+            if not app then
+                return 
+            end
+            local apps = Util:fromfile("/tmp/exec-apps.lua")
+            Util:launch(apps[app])
+        end)
+            .run()
+    end
 function Funs:dmenu_run()
 	Util:exec(pop_term .. " fun tmenu_run")
 end

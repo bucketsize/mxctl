@@ -1,5 +1,6 @@
    return {
 	  app_dirs = {
+			"/usr/bin",
 			"/usr/local/bin",
 			"/usr/share/applications",
             "~/.local/share/applications"

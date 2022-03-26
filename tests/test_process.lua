@@ -11,7 +11,11 @@ function test_list()
 end
 
 function test_findapps()
-   Ctl.Funs.find()
+    local apps = Ctl.Funs.find()
+    table.sort(apps, function(a, b)
+        return a < b
+    end)
+    Util:printOTable(apps)
 end
 
 function test_parsedesktopfile()
@@ -19,6 +23,11 @@ function test_parsedesktopfile()
    parsedesktopfile(nil, "/usr/share/applications/chromium-browser.desktop")
 end
 
+function test_tmenu_run()
+    local apps = Ctl.Funs.tmenu_run()
+end
+
 test_list()
 test_findapps()
 test_parsedesktopfile()
+test_tmenu_run()

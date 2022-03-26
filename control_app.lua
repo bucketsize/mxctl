@@ -41,7 +41,8 @@ function F:parsedesktopfile(f)
                 exec = l:match("^Exec=(.+)")
                 if exec then
                     b.exec = Util:strip(exec)
-                    b.bin = b.exec:match("([%w%p]+)%s")
+                    local ps = Util:split(".", Sh.split_path(f), {regex=false})
+                    b.bin = ps[1]
                     if not b.bin then
                         b.bin = b.exec
                     end
@@ -102,12 +103,13 @@ function F:find()
     .run()
 
     print("discovered [apps+exes]:", Util:size(apps))
-    Util:tofile(appcache, apps)
+    return apps
 end
 
 function F:findcached()
     if not Sh.path_exists(appcache) then
-        F:find()
+        local apps = F:find()
+        Util:tofile(appcache, apps)
     end
     local apps = Util:fromfile(appcache)
     for k, v in pairs(apps) do
