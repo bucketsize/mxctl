@@ -6,7 +6,9 @@ local Util = require('minilib.util')
 local Cmds = require('mxctl.control_cmds')
 local Cfg = require('mxctl.config')
 
-local pop_term = Cfg:build_pop_term()
+local pop_term = Cfg.build_pop_term 
+local menu_sel = Cfg.build_menu_sel
+local ctrl_bin = Cfg.build_ctrl_bin
 
 DISPLAYS = Cfg.displays
 
@@ -151,7 +153,7 @@ function Funs:tmenu_setup_video()
 	end
 
 	Pr.pipe()
-	.add(Sh.exec(string.format('echo "%s" | %s', opts, Cfg.menu_sel)))
+	.add(Sh.exec(menu_sel(string.format('echo "%s"', opts))))
 	.add(function(id)
 		Util:exec(vgridctl[id])
 	end)
@@ -159,7 +161,88 @@ function Funs:tmenu_setup_video()
 end
 
 function Funs:dmenu_setup_video()
-	Util:exec(pop_term .. " fun tmenu_setup_video")
+	Util:exec(pop_term(ctrl_bin("tmenu_setup_video")))
+end
+
+function Funs:tmenu_select_window()
+	local ws = {}
+	local wl = ''
+	Pr.pipe()
+	.add(Sh.exec('wmctrl -l'))
+	.add(Sh.grep('(%w+)%s+(%d+)%s+([%w%p]+)%s+(.*)'))
+	.add(function(arr)
+		ws[arr[4]]= {id = arr[1], ws = arr[2], name = arr[4]}
+		return arr[4]
+	end)
+	.add(function(name)
+		wl = wl .. name .. '\n'
+	end)
+	.run()
+
+	Pr.pipe()
+	.add(Sh.exec(menu_sel(string.format('echo "%s"', wl))))
+	.add(function(name)
+		Util:exec('wmctrl -ia ' .. ws[name].id)
+	end)
+	.run()
+end
+function Funs:dmenu_select_window()
+	Util:exec(pop_term(ctrl_bin("tmenu_select_window")))
+end
+function Funs:scr_lock_if()
+	local iv = Pr.pipe()
+		.add(Sh.exec('pacmd list-sink-inputs'))
+		.add(Sh.grep('state: RUNNING.*'))
+		.add(Sh.echo())
+		.run()
+	print("audio live:", iv)
+  if iv == nil then
+		return Cmds['scr_lock']
+	end
+end
+function wm_info()
+   local h = assert(io.popen("wmctrl -m"))
+   local wm
+   for line in h:lines() do
+	  wm = line:match("Name:%s(%w+)")
+	  if wm then break end
+   end
+   return {wm=wm}
+end
+
+function Funs:tmenu_exit()
+   local wminf = wm_info()
+   local wxitf = ""
+   if wminf.wm == 'bspwm' then
+	  wxitf = "bspc quit"
+   end
+   if wminf.wm == 'i3wm' then
+	  wxitf = "i3-msg exit"
+   end
+
+   local exit_with = {
+	  lock = Cmds["scr_lock"],
+	  logout = wxitf,
+	  suspend = "systemctl suspend",
+	  hibernate = "systemctl hibernate",
+	  reboot = "systemctl reboot",
+	  shutdown = "systemctl poweroff -i"
+   }
+
+   local opts = ""
+   for k,v in pairs(exit_with) do
+	  opts = opts .. k .. "\n"
+   end
+
+   Pr.pipe()
+	  .add(Sh.exec(menu_sel(string.format('echo "%s"', opts))))
+	  .add(function(name)
+			Util:exec(exit_with[name])
+		  end)
+	  .run()
+end
+function Funs:dmenu_exit()
+   Util:exec(pop_term(ctrl_bin("tmenu_exit")))
 end
 
 return Funs

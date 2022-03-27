@@ -1,11 +1,11 @@
 require "luarocks.loader"
 
-local Util = require("minilib.util")
-local json = require("minilib.json")
 local http_request = require("http.request")
-local Cfg = require("mxctl.config")
+local Util         = require("minilib.util")
+local json         = require("minilib.json")
+local Cfg          = require("mxctl.config")
 
-local wlprs=os.getenv("HOME").."/.wlprs/"
+local wlprs = os.getenv("HOME").."/.wlprs/"
 math.randomseed(os.time())
 
 function find(path)
@@ -115,7 +115,7 @@ function F:applywallpaper()
         wp = F:selectwallpaper(wlprs)
     end
     print("applying wallpaper "..wp)
-    assert(io.popen("feh --bg-scale '"..wp.."'"))
+    assert(Util:exec("feh --bg-scale '"..wp.."'"))
 end
 
 return F

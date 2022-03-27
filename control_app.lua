@@ -1,11 +1,15 @@
 require "luarocks.loader"
 
-local Sh = require('minilib.shell')
-local Pr = require('minilib.process')
+local Sh   = require('minilib.shell')
+local Pr   = require('minilib.process')
 local Util = require('minilib.util')
-local Ot = require('minilib.otable')
-local Cfg = require('mxctl.config')
+local Ot   = require('minilib.otable')
+local Cfg  = require('mxctl.config')
+
 local appcache = "/tmp/exec-apps.lua"
+local pop_term = Cfg.build_pop_term
+local menu_sel = Cfg.build_menu_sel
+local ctrl_bin = Cfg.build_ctrl_bin
 
 function hazapp(bs, b)
     for i,bi in ipairs(bs) do
@@ -116,6 +120,22 @@ function F:findcached()
         print(k)
     end
     return apps
+end
+function F:tmenu_run()
+    local list_apps = menu_sel(ctrl_bin("findcached"))
+    Pr.pipe()
+        .add(Sh.exec(list_apps))
+        .add(function(app)
+            if not app then
+                return 
+            end
+            local apps = Util:fromfile("/tmp/exec-apps.lua")
+            Util:launch(apps[app])
+        end)
+       .run()
+end
+function F:dmenu_run()
+	Util:exec(pop_term(ctrl_bin("tmenu_run")))
 end
 
 return F

@@ -1,10 +1,12 @@
 #!/usr/bin/env lua
 
+require "luarocks.loader"
+
 package.path = os.getenv("HOME") .. '/?.lua;'
     .. package.path
 
 local Util = require("minilib.util")
-local Ctl = require("mxctl.control")
+local Ctl  = require("mxctl.control")
 
 function test_list()
    assert(Ctl.Funs.find)
@@ -15,19 +17,19 @@ function test_findapps()
     table.sort(apps, function(a, b)
         return a < b
     end)
-    Util:printOTable(apps)
+	assert(apps["curl"])
 end
 
 function test_parsedesktopfile()
-   parsedesktopfile = Ctl.Funs['parsedesktopfile']
-   parsedesktopfile(nil, "/usr/share/applications/chromium-browser.desktop")
+   local app = Ctl.Funs.parsedesktopfile(nil, "/usr/share/applications/chromium-browser.desktop")
+   assert(app)
 end
 
-function test_tmenu_run()
-    local apps = Ctl.Funs.tmenu_run()
+function test_dmenu_run()
+   local app = Ctl.Funs.dmenu_run()
 end
 
 test_list()
 test_findapps()
 test_parsedesktopfile()
-test_tmenu_run()
+test_dmenu_run()
