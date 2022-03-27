@@ -3,7 +3,6 @@ require "luarocks.loader"
 local Sh = require('minilib.shell')
 local Pr = require('minilib.process')
 local Util = require('minilib.util')
-local Ot = require('minilib.otable')
 local Cfg = require('mxctl.config')
 local Cmds = require('mxctl.control_cmds')
 local appcache = "/tmp/exec-apps.lua"
