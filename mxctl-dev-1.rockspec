@@ -19,7 +19,6 @@ build = {
 			["mxctl.config0"] = "config0.lua",
 			["mxctl.config"] = "config.lua",
 			["mxctl.control_cmds"] = "control_cmds.lua",
-			["mxctl.control_process"] = "control_process.lua",
 			["mxctl.control_pulseaudio"] = "control_pulseaudio.lua",
 			["mxctl.control_x11"] = "control_x11.lua",
 			["mxctl.control_app"] = "control_app.lua",

@@ -2,8 +2,6 @@
 
 require "luarocks.loader"
 
-local Sh = require('minilib.shell')
-local Pr = require('minilib.process')
 local Util = require('minilib.util')
 
 function mergeWith(f, t)
@@ -28,7 +26,7 @@ function Fn:fun(key)
       cmd = Funs[key]()
       if cmd then
 	 if type(cmd) == 'table' then
-	    for i,icmd in ipairs(cmd) do
+	    for _,icmd in ipairs(cmd) do
 	       Util:exec(icmd)
 	    end
 	 else
@@ -41,7 +39,7 @@ function Fn:fun(key)
 end
 function Fn:help()
    print("fun")
-   for k,v in pairs(Funs) do
+   for k,_ in pairs(Funs) do
       print('\t',k)
    end
 end

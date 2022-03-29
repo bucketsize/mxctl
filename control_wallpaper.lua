@@ -2,7 +2,6 @@ require "luarocks.loader"
 
 local http_request = require("http.request")
 local Util         = require("minilib.util")
-local json         = require("minilib.json")
 local Cfg          = require("mxctl.config")
 
 local wlprs = os.getenv("HOME").."/.wlprs/"
@@ -20,7 +19,7 @@ end
 
 function randstr(length)
 	local s = ""
-	for i = 1, length do
+	for _ = 1, length do
 		s = s .. string.char(math.random(97, 122))
 	end
 	return res
@@ -47,6 +46,7 @@ local urlr = {
             return "https://api.nasa.gov/planetary/apod?api_key=cRFIBE5eZnucIQxhm3jJGJopmXDBTQsTkAQal6Qu&count=1"
         end,
         parse = function(s)
+			print("TODO", s)
         end
     }
 }
@@ -56,12 +56,12 @@ function geturlonsuccess(url)
 		.new_from_uri(url)
 		:go()
     if err then
-        print(string.format("Error get [%s]: %s, %s", url, err, status))
+        print(string.format("Error get [%s]: %s, %s", url, err))
         return nil, err
     end
 	if headers:get ":status" ~= "200" then
-        print(string.format("Error get [%s]: %s, %s", url, err, status))
-		return nil, "error: httpstatus = "..status
+        print(string.format("Error get [%s]: %s, %s", url, err))
+		return nil, "error: httpstatus = "..err
 	end
     return stream, nil
 end
@@ -90,7 +90,7 @@ function F:getwallpaper(provider)
 
 	local stream, err = geturlonsuccess(url)
     local file = io.open(wlprs..name, "w")
-    local f, ferr, fcode = stream:save_body_to_file(file, 2)
+    local _, ferr, fcode = stream:save_body_to_file(file, 2)
     file:close()
     if ferr then
         print("Error saving file: ", ferr, fcode)
@@ -104,7 +104,7 @@ function F:selectwallpaper(dir)
 end
 
 function F:applywallpaper()
-    local wp = ""
+    local wp
     if Cfg.wallpapermode == "new" then
         wp = F:getwallpaper()
     elseif Cfg.wallpapermode == "fixed" then

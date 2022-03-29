@@ -1,4 +1,3 @@
-local Util = require("minilib.util")
 local Sh = require("minilib.shell")
 local Home = os.getenv("HOME")
 
@@ -18,7 +17,7 @@ Cfg.pop_termopts = {
    foot      = '--app-id Popeye --title Popeye --window-size-chars 64x16 '
 }
 
-function Cfg:get_renderer()
+function Cfg.get_renderer()
     local xs_dev = os.getenv("DISPLAY")
     local wl_dev = os.getenv("WAYLAND_DISPLAY")
     if wl_dev == "" then

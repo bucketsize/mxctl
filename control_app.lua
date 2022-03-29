@@ -3,7 +3,6 @@ require "luarocks.loader"
 local Sh   = require('minilib.shell')
 local Pr   = require('minilib.process')
 local Util = require('minilib.util')
-local Ot   = require('minilib.otable')
 local Cfg  = require('mxctl.config')
 
 local appcache = "/tmp/exec-apps.lua"
@@ -12,7 +11,7 @@ local menu_sel = Cfg.build_menu_sel
 local ctrl_bin = Cfg.build_ctrl_bin
 
 function hazapp(bs, b)
-    for i,bi in ipairs(bs) do
+    for _,bi in ipairs(bs) do
         if bi.exec == b.exec then
             return true
         end
@@ -38,7 +37,8 @@ function F:parsedesktopfile(f)
             b = {name = "na", exec = "na", bin = "na"}
             i = i + 1
         else
-            local name, exec = l:match("^Name=([%w%s-_/]+)")
+            local name = l:match("^Name=([%w%s-_/]+)")
+			local exec
             if name then
                 b.name = name
             else
@@ -100,7 +100,7 @@ function F:find()
             return
         end
         local ds = F:parsedesktopfile(x)
-        for i,d in ipairs(ds) do
+        for _,d in ipairs(ds) do
             apps[d.bin .. ": " .. d.name] = d.exec
         end
     end)
@@ -116,9 +116,6 @@ function F:findcached()
         Util:tofile(appcache, apps)
     end
     local apps = Util:fromfile(appcache)
-    for k, v in pairs(apps) do
-        print(k)
-    end
     return apps
 end
 function F:tmenu_run()

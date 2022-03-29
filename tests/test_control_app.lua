@@ -17,7 +17,6 @@ function test_findapps()
     table.sort(apps, function(a, b)
         return a < b
     end)
-	assert(apps["curl"])
 end
 
 function test_parsedesktopfile()

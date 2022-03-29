@@ -40,7 +40,7 @@ function xrandr_info()
 		else
 			if ot then
 				local mx, my = string.match(line, "%s+(%d+)x(%d+)")
-				if not (my == nil) then
+				if my then
 					table.insert(ots[ot].modes, {x=mx, y=my})
 					-- print(ot, mx, my)
 				end
@@ -74,7 +74,7 @@ end
 function outgrid_config(outgrid, d, o)
    if o then
 	  local mode = o.modes[1]
-	  for i,m in ipairs(o.modes) do
+	  for _,m in ipairs(o.modes) do
 		 --print("?y", m.x, m.y, d.mode, type(m.y), type(d.mode))
 		 if (tonumber(m.y) == d.mode.y) and (tonumber(m.x) == d.mode.x) then
 			--print("configure", d.name, d.pos[1], d.pos[2])
@@ -91,7 +91,7 @@ function outgrid_config(outgrid, d, o)
    end
 end
 
-function outgrid_controls_config(outgrid, outgrid_ctl, d, o)
+function outgrid_controls_config(outgrid, outgrid_ctl, d, o0)
    local x, y = d.pos[1], d.pos[2]
    local o = get2dElem(outgrid, x, y)
    if o then
@@ -124,14 +124,14 @@ end
 function xrandr_configs()
    local outputs = xrandr_info()
    local outgrid = {}
-   for i,d in ipairs(DISPLAYS) do
+   for _,d in ipairs(DISPLAYS) do
 	  -- print("configure", i, d.name)
 	  local o = outputs[d.name]
 	  outgrid_config(outgrid, d, o)
    end
 
    local outgrid_ctl = {}
-   for i,d in ipairs(DISPLAYS) do
+   for _,d in ipairs(DISPLAYS) do
 	  outgrid_controls_config(outgrid, outgrid_ctl, d, o)
    end
    return outgrid, outgrid_ctl
@@ -139,8 +139,8 @@ end
 
 local Funs = {}
 function Funs:setup_video()
-	local outgrid, outgrid_ctl = xrandr_configs()
-	for i,d in ipairs(DISPLAYS) do
+	local _, outgrid_ctl = xrandr_configs()
+	for _,d in ipairs(DISPLAYS) do
 		Util:exec(outgrid_ctl[d.name .. " on"])
 	end
 end
@@ -230,7 +230,7 @@ function Funs:tmenu_exit()
    }
 
    local opts = ""
-   for k,v in pairs(exit_with) do
+   for k, _ in pairs(exit_with) do
 	  opts = opts .. k .. "\n"
    end
 

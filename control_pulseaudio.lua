@@ -4,7 +4,6 @@ local Sh   = require('minilib.shell')
 local Pr   = require('minilib.process')
 local Util = require('minilib.util')
 local Cfg  = require('mxctl.config')
-local Cmds = require('mxctl.control_cmds')
 
 local pop_term = Cfg.build_pop_term 
 local menu_sel = Cfg.build_menu_sel
@@ -26,8 +25,8 @@ end
 local Funs = {}
 function Funs:tmenu_select_pa_sinks()
 	local opts = ""
-	for i, v in ipairs(pa_sinks()) do
-		opts = opts .. v .. "\n"
+	for _, v in ipairs(pa_sinks()) do
+		opts = opts .. v[1] .. "\n"
 	end
 
 	Pr.pipe()

@@ -2,7 +2,7 @@ require "luarocks.loader"
 
 local Util = require('minilib.util')
 local Cfg  = require("mxctl.config")
-local Cmd= {
+local Cmd  = {
 	vol_up      = 'pactl set-sink-volume @DEFAULT_SINK@ +10%',
 	vol_down    = 'pactl set-sink-volume @DEFAULT_SINK@ -10%',
 	vol_mute    = 'pactl set-sink-mute   @DEFAULT_SINK@ toggle',
