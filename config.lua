@@ -3,11 +3,11 @@ local Home = os.getenv("HOME")
 
 local Cfg
 if Sh.path_exists(Home.."/.config/mxctl/config") then
-    print("config < existing")
-   Cfg = loadfile(Home.."/.config/mxctl/config")()
+	--print("config < existing")
+	Cfg = loadfile(Home.."/.config/mxctl/config")()
 else
-    print("config < default")
-   Cfg = require("mxctl.config0")
+	--print("config < default")
+	Cfg = require("mxctl.config0")
 end
 
 Cfg.pop_termopts = {

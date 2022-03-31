@@ -106,7 +106,7 @@ function F:find()
     end)
     .run()
 
-    print("discovered [apps+exes]:", Util:size(apps))
+    -- print("discovered [apps+exes]:", Util:size(apps))
     return apps
 end
 
@@ -116,7 +116,9 @@ function F:findcached()
         Util:tofile(appcache, apps)
     end
     local apps = Util:fromfile(appcache)
-    return apps
+	for k,_ in pairs(apps) do
+		print(k)
+	end
 end
 function F:tmenu_run()
     local list_apps = menu_sel(ctrl_bin("findcached"))
@@ -127,7 +129,7 @@ function F:tmenu_run()
                 return 
             end
             local apps = Util:fromfile("/tmp/exec-apps.lua")
-            Util:launch(apps[app])
+            Sh.launch(apps[app])
         end)
        .run()
 end
