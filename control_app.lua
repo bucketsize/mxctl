@@ -5,7 +5,8 @@ local Pr   = require('minilib.process')
 local Util = require('minilib.util')
 local Cfg  = require('mxctl.config')
 
-local appcache = "/tmp/exec-apps.lua"
+local USER = os.getenv("USER")
+local appcache = "/tmp/appcache.mxctl."..USER..".lua"
 local pop_term = Cfg.build_pop_term
 local menu_sel = Cfg.build_menu_sel
 local ctrl_bin = Cfg.build_ctrl_bin
@@ -128,7 +129,7 @@ function F:tmenu_run()
             if not app then
                 return 
             end
-            local apps = Util:fromfile("/tmp/exec-apps.lua")
+            local apps = Util:fromfile(appcache)
             Sh.launch(apps[app])
         end)
        .run()
