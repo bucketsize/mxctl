@@ -41,25 +41,5 @@ function Fn:logout()
     local renderer = Cfg:get_renderer()
     Util:exec(Cmd[renderer]["logout"])
 end
-
-function Fn:vol_up()   
-    Util:exec(Cmd["vol_up"])
-end
-function Fn:vol_down()  
-    Util:exec(Cmd[vol_down""])
-end
-function Fn:vol_mute() 
-    Util:exec(Cmd["vol_mute"])
-end
-function Fn:vol_unmute()
-    Util:exec(Cmd["vol_unmute"])
-end
-          
-function Fn:kb_led_on() 
-    Util:exec(Cmd["kb_led_on"])
-end
-function Fn:kb_led_off()
-    Util:exec(Cmd["kb_led_off"])
-end
     
 return Fn 

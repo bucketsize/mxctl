@@ -1,10 +1,9 @@
 require "luarocks.loader"
 
-local Sh = require('minilib.shell')
-local Pr = require('minilib.process')
+local Sh   = require('minilib.shell')
+local Pr   = require('minilib.process')
 local Util = require('minilib.util')
-local Cmds = require('mxctl.control_cmds')
-local Cfg = require('mxctl.config')
+local Cfg  = require('mxctl.config')
 
 local pop_term = Cfg.build_pop_term 
 local menu_sel = Cfg.build_menu_sel
@@ -17,13 +16,40 @@ DISPLAY_ON = [[
 			--output %s \
 			--mode %dx%d \
 			--rotate normal \
-			--pos %dx%d %s
+			--pos %dx%d \
+			%s
 ]]
 DISPLAY_OFF = [[
 		xrandr \
 			--output %s \
 			--off
 ]]
+
+local _CMD = {
+	kb_led_on   = 'xset led on',
+	kb_led_off  = 'xset led off',
+
+	-- this stuff for openbox / floating win managers
+	win_left    = 'xdotool getactivewindow windowmove 03% 02% windowsize 48% 92%',
+	win_right   = 'xdotool getactivewindow windowmove 52% 02% windowsize 48% 92%',
+	win_max     = 'wmctrl -r :ACTIVE: -b    add,maximized_vert,maximized_horz',
+	win_unmax   = 'wmctrl -r :ACTIVE: -b remove,maximized_vert,maximized_horz',
+	win_big     = 'xdotool getactivewindow windowmove 04% 04% windowsize 92% 92%',
+	win_small   = 'xdotool getactivewindow windowmove 20% 20% windowsize 70% 50%',
+
+	scr_cap     = 'import -window root ~/Pictures/$(date +%Y%m%dT%H%M%S).png',
+	scr_cap_sel = 'import ~/Pictures/$(date +%Y%m%dT%H%M%S).png',
+
+	-- scr_lock    = 'xlock -dpmsoff 60 -mode random -modelist swarm,pacman,molecule,hyper',
+	scr_lock    = 'slock',
+	autolockd_xautolock   = [[
+		xautolock
+			-time 3 -locker "mxctl.control fun scr_lock_if"
+			-killtime 10 -killer "notify-send -u critical -t 10000 -- 'Killing system ...'"
+			-notify 30 -notifier "notify-send -u critical -t 10000 -- 'Locking system ETA 30s ...'";
+	]],
+}
+
 
 function xrandr_info()
 	local h = assert(io.popen("xrandr -q"))
@@ -120,7 +146,6 @@ function outgrid_controls_config(outgrid, outgrid_ctl, d, o0)
    end
 end
 
-
 function xrandr_configs()
    local outputs = xrandr_info()
    local outgrid = {}
@@ -141,63 +166,72 @@ local Funs = {}
 function Funs:setup_video()
 	local _, outgrid_ctl = xrandr_configs()
 	for _,d in ipairs(DISPLAYS) do
-		Util:exec(outgrid_ctl[d.name .. " on"])
+		Sh.sh(outgrid_ctl[d.name .. " on"])
 	end
 end
 
 function Funs:tmenu_setup_video()
 	local _, vgridctl = xrandr_configs()
-	local opts = ""
-	for k, cmd in pairs(vgridctl) do
-		opts = opts .. string.format("%s", k) .. "\n"
-	end
+	local opts = table.concat(Util:keys(vgridctl), '\n')
 
 	Pr.pipe()
 	.add(Sh.exec(menu_sel(string.format('echo "%s"', opts))))
 	.add(function(id)
-		Util:exec(vgridctl[id])
+		Sh.sh(vgridctl[id])
 	end)
 	.run()
 end
 
 function Funs:dmenu_setup_video()
-	Util:exec(pop_term(ctrl_bin("tmenu_setup_video")))
+	Sh.sh(pop_term(ctrl_bin("tmenu_setup_video")))
 end
 
 function Funs:tmenu_select_window()
 	local ws = {}
-	local wl = ''
+	local wl = {}
 	Pr.pipe()
 	.add(Sh.exec('wmctrl -l'))
 	.add(Sh.grep('(%w+)%s+(%d+)%s+([%w%p]+)%s+(.*)'))
 	.add(function(arr)
-		ws[arr[4]]= {id = arr[1], ws = arr[2], name = arr[4]}
-		return arr[4]
+		if arr then
+			ws[arr[4]]= {id = arr[1], ws = arr[2], name = arr[4]}
+			return arr[4]
+		end
 	end)
 	.add(function(name)
-		wl = wl .. name .. '\n'
+		if name then
+			table.insert(wl, name)
+		end
 	end)
 	.run()
 
+	local wl_opts = table.concat(wl, '\n')
 	Pr.pipe()
-	.add(Sh.exec(menu_sel(string.format('echo "%s"', wl))))
+	.add(Sh.exec(menu_sel(string.format('echo "%s"', wl_opts))))
 	.add(function(name)
-		Util:exec('wmctrl -ia ' .. ws[name].id)
+		if name then
+			Sh.sh('wmctrl -ia ' .. ws[name].id)
+		end
 	end)
 	.run()
 end
 function Funs:dmenu_select_window()
-	Util:exec(pop_term(ctrl_bin("tmenu_select_window")))
+	Sh.sh(pop_term(ctrl_bin("tmenu_select_window")))
 end
 function Funs:scr_lock_if()
-	local iv = Pr.pipe()
-		.add(Sh.exec('pacmd list-sink-inputs'))
-		.add(Sh.grep('state: RUNNING.*'))
+	local iv = nil
+	Pr.pipe()
+		.add(Sh.exec('pactl list sinks'))
+		.add(Sh.grep('RUNNING'))
 		.add(Sh.echo())
+		.add(function(x)
+			if x then
+				iv = x
+			end
+		end)
 		.run()
-	print("audio live:", iv)
-  if iv == nil then
-		return Cmds['scr_lock']
+	if iv == nil then
+		Sh.sh(_CMD['scr_lock'])
 	end
 end
 function wm_info()
@@ -210,39 +244,46 @@ function wm_info()
    return {wm=wm}
 end
 
+local _LOGOUT_CMD = {
+	bspwm = "bspc quit",
+	i3wm =  "i3-msg exit",
+	openbox = "",
+	xmonad = "",
+}
+
 function Funs:tmenu_exit()
    local wminf = wm_info()
-   local wxitf = ""
-   if wminf.wm == 'bspwm' then
-	  wxitf = "bspc quit"
-   end
-   if wminf.wm == 'i3wm' then
-	  wxitf = "i3-msg exit"
-   end
-
    local exit_with = {
-	  lock = Cmds["scr_lock"],
-	  logout = wxitf,
-	  suspend = "systemctl suspend",
+	  lock      = _CMD["scr_lock"],
+	  logout    = _LOGOUT_CMD[wminf.wm], 
+	  suspend   = "systemctl suspend",
 	  hibernate = "systemctl hibernate",
-	  reboot = "systemctl reboot",
-	  shutdown = "systemctl poweroff -i"
+	  reboot    = "systemctl reboot",
+	  shutdown  = "systemctl poweroff -i"
    }
 
-   local opts = ""
+   local opts = {}
    for k, _ in pairs(exit_with) do
-	  opts = opts .. k .. "\n"
+	 table.insert(opts, k) 
    end
 
    Pr.pipe()
-	  .add(Sh.exec(menu_sel(string.format('echo "%s"', opts))))
-	  .add(function(name)
-			Util:exec(exit_with[name])
-		  end)
-	  .run()
+	   .add(Sh.exec(menu_sel(string.format('echo "%s"',
+	   		table.concat(opts, '\n')))))
+	   .add(function(name)
+		   if name then
+			   if exit_with[name] ~= "" then
+				   Sh.sh(exit_with[name])
+			   else
+				   print("no ", name, "for", wminf.wm)
+			   end
+		   end
+		   return name
+	   end)
+	   .run()
 end
 function Funs:dmenu_exit()
-   Util:exec(pop_term(ctrl_bin("tmenu_exit")))
+   Sh.sh(pop_term(ctrl_bin("tmenu_exit")))
 end
 
 return Funs

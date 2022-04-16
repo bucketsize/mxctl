@@ -9,35 +9,63 @@ local pop_term = Cfg.build_pop_term
 local menu_sel = Cfg.build_menu_sel
 local ctrl_bin = Cfg.build_ctrl_bin
 
+local _PA_CMD  = {
+	vol_up      = 'pactl set-sink-volume @DEFAULT_SINK@ +10%',
+	vol_down    = 'pactl set-sink-volume @DEFAULT_SINK@ -10%',
+	vol_mute    = 'pactl set-sink-mute   @DEFAULT_SINK@ toggle',
+	vol_unmute  = 'pactl set-sink-mute   @DEFAULT_SINK@ toggle',
+}
+
 function pa_sinks()
 	local iv = {}
 	Pr.pipe()
 	.add(Sh.exec('pactl list sinks'))
 	.add(Sh.grep('Name: (.+)'))
-	.add(Sh.echo())
 	.add(function(x)
-		table.insert(iv, x)
+		if x then
+			table.insert(iv, x)
+		end
 	end)
 	.run()
 	return iv
 end
 
-local Funs = {}
-function Funs:tmenu_select_pa_sinks()
-	local opts = ""
-	for _, v in ipairs(pa_sinks()) do
-		opts = opts .. v[1] .. "\n"
-	end
+local Fn = {}
+function Fn:tmenu_select_pa_sinks()
+	local opts = Util:map(
+		function(v) return v[1] end,
+		Util:values(pa_sinks()))
+	local opss = table.concat(opts, '\n')
 
 	Pr.pipe()
-	.add(Sh.exec(menu_sel(string.format('echo "%s"', opts))))
+	.add(Sh.exec(menu_sel(string.format('echo "%s"', opss))))
 	.add(function(id)
-		Util:exec('pacmd set-default-sink '..id)
+		if id then
+			Sh.sh('pactl set-default-sink '..id)
+		end
 	end)
 	.run()
 end
-function Funs:dmenu_select_pa_sinks()
-	Util:exec(pop_term(ctrl_bin("tmenu_select_pa_sinks")))
+function Fn:dmenu_select_pa_sinks()
+	Sh.sh(pop_term(ctrl_bin("tmenu_select_pa_sinks")))
+end
+function Fn:vol_up()   
+    Util:exec(Cmd["vol_up"])
+end
+function Fn:vol_down()  
+    Util:exec(Cmd[vol_down""])
+end
+function Fn:vol_mute() 
+    Util:exec(Cmd["vol_mute"])
+end
+function Fn:vol_unmute()
+    Util:exec(Cmd["vol_unmute"])
+end
+function Fn:kb_led_on() 
+    Util:exec(Cmd["kb_led_on"])
+end
+function Fn:kb_led_off()
+    Util:exec(Cmd["kb_led_off"])
 end
 
-return Funs
+return Fn

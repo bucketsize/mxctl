@@ -3,6 +3,7 @@ require "luarocks.loader"
 local http_request = require("http.request")
 local Util         = require("minilib.util")
 local Cfg          = require("mxctl.config")
+local Sh           = require("minilib.shell")
 
 local wlprs = os.getenv("HOME").."/.wlprs/"
 math.randomseed(os.time())
@@ -115,7 +116,7 @@ function F:applywallpaper()
         wp = F:selectwallpaper(wlprs)
     end
     print("applying wallpaper "..wp)
-    assert(Util:exec("feh --bg-scale '"..wp.."'"))
+    assert(Sh.sh("feh --bg-scale '"..wp.."'"))
 end
 
 return F

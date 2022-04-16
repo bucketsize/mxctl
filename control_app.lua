@@ -29,7 +29,7 @@ end
 
 local F={}
 function F:parsedesktopfile(f)
-    local h = io.open(f, "r")
+    local h = assert(io.open(f, "r"), "bad file " .. f)
     local bs, b = {}, {}
     local i = 0
     for l in h:lines() do
@@ -65,8 +65,8 @@ function F:parsedesktopfile(f)
 end
 
 function F:find()
-    local paths = Util:join(" ", Cfg.app_dirs)
-    --print("paths:", paths)
+    local paths = table.concat(Cfg.app_dirs, " ")
+    -- print("paths:", paths)
 
     local apps = {}
 

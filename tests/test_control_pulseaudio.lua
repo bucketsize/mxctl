@@ -8,8 +8,8 @@ package.path = os.getenv("HOME") .. '/?.lua;'
 local Util = require("minilib.util")
 local Ctl  = require("mxctl.control")
 
-function test_tmenu_select_pa_sinks()
+function test_dmenu_select_pa_sinks()
 	Ctl.Funs.tmenu_select_pa_sinks()
 end
 
-test_tmenu_select_pa_sinks()
+test_dmenu_select_pa_sinks()
