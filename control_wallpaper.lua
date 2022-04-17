@@ -116,7 +116,7 @@ function F:applywallpaper()
         wp = F:selectwallpaper(wlprs)
     end
     print("applying wallpaper "..wp)
-    assert(Sh.sh("feh --bg-scale '"..wp.."'"))
+    Sh.sh("feh --bg-scale '"..wp.."'")
 end
 
 return F
