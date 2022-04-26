@@ -3,15 +3,16 @@ require "luarocks.loader"
 local Sh   = require('minilib.shell')
 local Pr   = require('minilib.process')
 local Util = require('minilib.util')
+local Ut   = Util
 local Cfg  = require('mxctl.config')
 
 local pop_term = Cfg.build_pop_term 
 local menu_sel = Cfg.build_menu_sel
 local ctrl_bin = Cfg.build_ctrl_bin
 
-DISPLAYS = Cfg.displays
+local DISPLAYS = Cfg.displays
 
-DISPLAY_ON = [[
+local DISPLAY_ON = [[
 		xrandr \
 			--output %s \
 			--mode %dx%d \
@@ -19,7 +20,7 @@ DISPLAY_ON = [[
 			--pos %dx%d \
 			%s
 ]]
-DISPLAY_OFF = [[
+local DISPLAY_OFF = [[
 		xrandr \
 			--output %s \
 			--off
@@ -234,16 +235,6 @@ function Funs:scr_lock_if()
 		Sh.sh(_CMD['scr_lock'])
 	end
 end
-function wm_info()
-   local h = assert(io.popen("wmctrl -m"))
-   local wm
-   for line in h:lines() do
-	  wm = line:match("Name:%s(%w+)")
-	  if wm then break end
-   end
-   return {wm=wm}
-end
-
 local _LOGOUT_CMD = {
 	bspwm = "bspc quit",
 	i3wm =  "i3-msg exit",
@@ -252,7 +243,7 @@ local _LOGOUT_CMD = {
 }
 
 function Funs:tmenu_exit()
-   local wminf = wm_info()
+   local wminf = Util:wminfo()
    local exit_with = {
 	  lock      = _CMD["scr_lock"],
 	  logout    = _LOGOUT_CMD[wminf.wm], 
@@ -284,6 +275,44 @@ function Funs:tmenu_exit()
 end
 function Funs:dmenu_exit()
    Sh.sh(pop_term(ctrl_bin("tmenu_exit")))
+end
+
+function brightness(delta)
+	print("brightness", delta)
+	Pr.pipe()
+		.add(Sh.exec("ls /sys/class/backlight"))
+		.add(function(bf)
+			if bf then
+				local max = tonumber(Ut:head_file("/sys/class/backlight/"..bf.."/max_brightness"))
+				local cur = tonumber(Ut:head_file("/sys/class/backlight/"..bf.."/brightness"))
+				local tar = math.floor(cur + delta*max/100)
+				if tar > max then
+					tar = max
+				end
+				if tar < 0 then
+					tar = cur
+				end
+				print("brightness", delta, bf, cur, tar, max)
+				local h = assert(io.open("/sys/class/backlight/"..bf.."/brightness", "w"))
+				h:write(tar)
+				h:close()
+			end
+		end)
+		.run()
+end
+
+function Funs:brightness_up()
+	brightness(10)
+end
+
+function Funs:brightness_down()
+	brightness(-10)
+end
+
+for f,cmd in pairs(_CMD) do
+	Funs[f] = function() 
+		Sh.sh(cmd)
+	end
 end
 
 return Funs

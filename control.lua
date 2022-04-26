@@ -12,7 +12,7 @@ function mergeWith(f, t)
 end
 
 local Funs = {}
-mergeWith(Funs, require('mxctl.control_cmds'))
+mergeWith(Funs, require('mxctl.control_power'))
 mergeWith(Funs, require('mxctl.control_x11'))
 mergeWith(Funs, require('mxctl.control_app'))
 mergeWith(Funs, require('mxctl.control_pulseaudio'))

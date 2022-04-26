@@ -61,11 +61,5 @@ end
 function Fn:vol_unmute()
     Util:exec(Cmd["vol_unmute"])
 end
-function Fn:kb_led_on() 
-    Util:exec(Cmd["kb_led_on"])
-end
-function Fn:kb_led_off()
-    Util:exec(Cmd["kb_led_off"])
-end
 
 return Fn

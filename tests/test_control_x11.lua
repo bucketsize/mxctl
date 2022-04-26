@@ -22,9 +22,13 @@ end
 function t03_scr_lock_if()
    Ctl.Funs.scr_lock_if()
 end
+function t04_brightness()
+   Ctl.Funs:brightness(10)
+end
 
 
-t01_dmenu_select_window()
-t02_dmenu_exit()
-t03_scr_lock_if()
-t04_dmenu_setup_video()
+-- t01_dmenu_select_window()
+-- t02_dmenu_exit()
+-- t03_scr_lock_if()
+-- t04_dmenu_setup_video()
+t04_brightness()
