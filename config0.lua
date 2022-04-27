@@ -3,6 +3,7 @@
 			"/usr/bin",
 			"/usr/local/bin",
 			"/usr/share/applications",
+			"/snap/bin",
             "~/.local/share/applications"
 		},
 	  menu_sel = "fzy",
@@ -23,7 +24,19 @@
 			extra_opts = '--primary'
 		 },
 		 {
-			name = 'HDMI-A-0',
+			name = 'eDP-1',
+			mode = {x=1280, y=720},
+			pos = {0,0},
+			extra_opts = '--primary'
+		 },
+		 {
+			name = 'HDMI-A-1',
+			mode = {x=1280, y=720},
+			pos = {0,0},
+			extra_opts = '--primary'
+		 },
+		 {
+			name = 'HDMI-A-1',
 			mode = {x=1280, y=720},
 			pos = {1,0},
 			extra_opts = '--set underscan on --set "underscan hborder" 48 --set "underscan vborder" 24'

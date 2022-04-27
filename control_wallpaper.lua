@@ -4,15 +4,20 @@ local http_request = require("http.request")
 local Util         = require("minilib.util")
 local Cfg          = require("mxctl.config")
 local Sh           = require("minilib.shell")
+local Pr           = require("minilib.process")
 
 local wlprs = os.getenv("HOME").."/.wlprs/"
 math.randomseed(os.time())
+
+local pop_term = Cfg.build_pop_term 
+local menu_sel = Cfg.build_menu_sel
+local ctrl_bin = Cfg.build_ctrl_bin
 
 function find(path)
     local h = assert(io.popen("find "..path.." -type f"))
     local t={}
     for i in h:lines() do
-        print("found", i)
+        -- print("found", i)
         table.insert(t, i)
     end
     return t
@@ -101,6 +106,9 @@ end
 
 function F:selectwallpaper(dir)
     local wps = find(dir)
+	if #wps == 0 then
+		return F:applywallpaper()
+	end
     return wps[math.random(1, #wps)]
 end
 
@@ -117,6 +125,39 @@ function F:applywallpaper()
     end
     print("applying wallpaper "..wp)
     Sh.sh("feh --bg-scale '"..wp.."'")
+end
+
+function exec_select(eopts, fn)
+   local labels = {}
+   for k, _ in pairs(eopts) do
+	 table.insert(labels, k) 
+   end
+
+   Pr.pipe()
+	   .add(Sh.exec(menu_sel(string.format('echo "%s"',
+	   		table.concat(labels, '\n')))))
+	   .add(function(k)
+		   if k then
+			   print("exec_select: ", k, eopts[k])
+			   fn(k, eopts[k])
+		   end
+		   return k
+	   end)
+	   .run()
+end
+
+function F:tmenu_set_wallpaper()
+    local wps = {} 
+	for k,v in pairs(find(wlprs)) do
+		wps[string.format("%d: %s", k, Sh.basename(v))] = v
+	end
+	exec_select(wps, function(k, wp)
+		Sh.sh("feh --bg-scale '"..wp.."'")
+	end)
+end
+
+function F:dmenu_set_wallpaper()
+	Sh.sh(pop_term(ctrl_bin("tmenu_set_wallpaper")))
 end
 
 return F

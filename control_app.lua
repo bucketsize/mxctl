@@ -66,7 +66,7 @@ end
 
 function F:find()
     local paths = table.concat(Cfg.app_dirs, " ")
-    -- print("paths:", paths)
+    print("find in:", paths)
 
     local apps = {}
 
@@ -89,6 +89,7 @@ function F:find()
         end
         local p = Sh.split_path(x)
         apps[p] = x
+		print("find, found:", p, x)
         return x
     end)
     .run()
@@ -102,12 +103,15 @@ function F:find()
         end
         local ds = F:parsedesktopfile(x)
         for _,d in ipairs(ds) do
-            apps[d.bin .. ": " .. d.name] = d.exec
+			local p = d.bin .. ": " .. d.name
+            apps[p] = d.exec 
+			print("find, found:", p, d.exec)
         end
     end)
     .run()
 
-    -- print("discovered [apps+exes]:", Util:size(apps))
+    print("discovered [apps+exes]:", Util:size(apps))
+	Util:tofile(appcache, apps)
     return apps
 end
 

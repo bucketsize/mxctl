@@ -1,10 +1,11 @@
 require "luarocks.loader"
 
-local Ut = require('minilib.util')
-local Pr = require('minilib.process')
-local Sh = require('minilib.shell')
-local Cfg  = require("mxctl.config")
-local x11  = require("mxctl.control_x11")
+local Ut  = require('minilib.util')
+local Pr  = require('minilib.process')
+local Sh  = require('minilib.shell')
+local Cfg = require("mxctl.config")
+local x11 = require("mxctl.control_x11")
+local wpc = require("mxctl.control_wallpaper")
 
 local pop_term = Cfg.build_pop_term 
 local menu_sel = Cfg.build_menu_sel
@@ -15,6 +16,7 @@ local Fn = {}
 local misc = {
 	["kb led on"]  = x11.kb_led_on,
 	["kb led off"] = x11.kb_led_off,
+	["set wallpaper"] = wpc.tmenu_set_wallpaper, 
 }
 
 function exec_options(eopts)
