@@ -14,6 +14,8 @@ Cfg.pop_termopts = {
    alacritty = '--class Popeye -o window.dimensions.columns=64 -o window.dimensions.lines=16 -e ',
    xterm     = '-name Popeye -geom 64x16 -e ',
    urxvt     = '-name Popeye -geometry 64x16 -e ',
+   urxvtc    = '-name Popeye -geometry 64x16 -e ',
+   qterminal = '--profile Popeye -e ',
    foot      = '--app-id Popeye --title Popeye --window-size-chars 64x16 '
 }
 

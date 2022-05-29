@@ -236,26 +236,26 @@ function Funs:scr_lock_if()
 	end
 end
 local _LOGOUT_CMD = {
-	bspwm = "bspc quit",
-	i3wm =  "i3-msg exit",
-	openbox = "",
-	xmonad = "",
+	bspwm   = "bspc quit",
+	i3wm    = "i3-msg exit",
+	openbox = "openbox --exit",
+	xmonad  = "",
 }
 
 function Funs:tmenu_exit()
    local wminf = Util:wminfo()
    local exit_with = {
 	  lock      = _CMD["scr_lock"],
-	  logout    = _LOGOUT_CMD[wminf.wm], 
+	  logout    = _LOGOUT_CMD[wminf.wm:lower()], 
 	  suspend   = "systemctl suspend",
 	  hibernate = "systemctl hibernate",
 	  reboot    = "systemctl reboot",
-	  shutdown  = "systemctl poweroff -i"
+	  shutdown  = "systemctl poweroff -i",
    }
 
    local opts = {}
    for k, _ in pairs(exit_with) do
-	 table.insert(opts, k) 
+	 table.insert(opts, k)
    end
 
    Pr.pipe()
