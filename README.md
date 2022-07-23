@@ -11,8 +11,8 @@ Clone this repo, and from toplevel:
 `luarocks make --local` #installs to ~/.luarocks
 
 Then bind to shortcut in any WM or VT:
-- `~/.luarocks/bin/mxctl.control fun dmenu_run` #for WM
-- `~/.luarocks/bin/mxctl.control fun tmenu_run` #for VT
+- `~/.luarocks/bin/mxctl.control dmenu_run` #for WM
+- `~/.luarocks/bin/mxctl.control tmenu_run` #for VT
 
 To list all supported functionality
 `~/.luarocks/bin/control help`

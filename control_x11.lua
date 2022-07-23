@@ -45,7 +45,7 @@ local _CMD = {
 	scr_lock    = 'slock',
 	autolockd_xautolock   = [[
 		xautolock
-			-time 3 -locker "mxctl.control fun scr_lock_if"
+			-time 3 -locker "mxctl.control scr_lock_if"
 			-killtime 10 -killer "notify-send -u critical -t 10000 -- 'Killing system ...'"
 			-notify 30 -notifier "notify-send -u critical -t 10000 -- 'Locking system ETA 30s ...'";
 	]],

@@ -41,7 +41,7 @@ function Cfg.build_menu_sel(lst)
 	return string.format("%s | %s ", lst, Cfg.menu_sel)
 end
 function Cfg.build_ctrl_bin(cmd)
-	return string.format("%s fun %s ",Cfg.ctrl_bin, cmd)
+	return string.format("%s %s ",Cfg.ctrl_bin, cmd)
 end
 
 return Cfg
