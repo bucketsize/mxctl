@@ -9,6 +9,7 @@
 	  menu_sel = "fzy",
 	  ctrl_bin = "~/.luarocks/bin/mxctl.control",
 	  pop_term = 'urxvtc',
+	  lux_step = 2,
       
       -- relative to $HOME
       wallpapermode = "folder", -- new|fixed|cycle|folder

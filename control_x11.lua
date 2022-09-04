@@ -302,11 +302,11 @@ function brightness(delta)
 end
 
 function Funs:brightness_up()
-	brightness(10)
+	brightness(Cfg.lux_step)
 end
 
 function Funs:brightness_down()
-	brightness(-10)
+	brightness(-Cfg.lux_step)
 end
 
 for f,cmd in pairs(_CMD) do
