@@ -11,36 +11,18 @@ function mergeWith(f, t)
    return f
 end
 
-local Funs = {}
-mergeWith(Funs, require('mxctl.control_power'))
-mergeWith(Funs, require('mxctl.control_x11'))
-mergeWith(Funs, require('mxctl.control_app'))
-mergeWith(Funs, require('mxctl.control_cmd'))
-mergeWith(Funs, require('mxctl.control_pulseaudio'))
-mergeWith(Funs, require('mxctl.control_wallpaper'))
+local Fn = {}
+mergeWith(Fn, require('mxctl.control_power'))
+mergeWith(Fn, require('mxctl.control_x11'))
+mergeWith(Fn, require('mxctl.control_app'))
+mergeWith(Fn, require('mxctl.control_cmd'))
+mergeWith(Fn, require('mxctl.control_pulseaudio'))
+mergeWith(Fn, require('mxctl.control_wallpaper'))
 
 ------------------------------------------------------
-local Fn = {}
-function Fn:fun(key)
-   local cmd = Funs[key]
-   if cmd then
-      cmd = Funs[key]()
-      if cmd then
-	 if type(cmd) == 'table' then
-	    for _,icmd in ipairs(cmd) do
-	       Util:exec(icmd)
-	    end
-	 else
-	    Util:exec(cmd)
-	 end
-      end
-   else
-      print('cmd: ', key, 'not mapped')
-   end
-end
 function Fn:help()
    print("fun")
-   for k,_ in pairs(Funs) do
+   for k,_ in pairs(Fn) do
       print('\t',k)
    end
 end
@@ -49,7 +31,5 @@ local fn = Fn[arg[1]]
 if fn == nil then
    print('huh!')
 else
-   fn(fn, arg[2])
+   fn(arg[2])
 end
-
-return {Funs = Funs }

@@ -45,7 +45,7 @@ local _CMD = {
 	scr_lock    = 'slock',
 	autolockd_xautolock   = [[
 		xautolock
-			-time 3 -locker "mxctl.control fun scr_lock_if"
+			-time 3 -locker "mxctl.control scr_lock_if"
 			-killtime 10 -killer "notify-send -u critical -t 10000 -- 'Killing system ...'"
 			-notify 30 -notifier "notify-send -u critical -t 10000 -- 'Locking system ETA 30s ...'";
 	]],
@@ -236,26 +236,26 @@ function Funs:scr_lock_if()
 	end
 end
 local _LOGOUT_CMD = {
-	bspwm = "bspc quit",
-	i3wm =  "i3-msg exit",
-	openbox = "",
-	xmonad = "",
+	bspwm   = "bspc quit",
+	i3wm    = "i3-msg exit",
+	openbox = "openbox --exit",
+	xmonad  = "",
 }
 
 function Funs:tmenu_exit()
    local wminf = Util:wminfo()
    local exit_with = {
 	  lock      = _CMD["scr_lock"],
-	  logout    = _LOGOUT_CMD[wminf.wm], 
+	  logout    = _LOGOUT_CMD[wminf.wm:lower()], 
 	  suspend   = "systemctl suspend",
 	  hibernate = "systemctl hibernate",
 	  reboot    = "systemctl reboot",
-	  shutdown  = "systemctl poweroff -i"
+	  shutdown  = "systemctl poweroff -i",
    }
 
    local opts = {}
    for k, _ in pairs(exit_with) do
-	 table.insert(opts, k) 
+	 table.insert(opts, k)
    end
 
    Pr.pipe()
@@ -302,11 +302,11 @@ function brightness(delta)
 end
 
 function Funs:brightness_up()
-	brightness(10)
+	brightness(Cfg.lux_step)
 end
 
 function Funs:brightness_down()
-	brightness(-10)
+	brightness(-Cfg.lux_step)
 end
 
 for f,cmd in pairs(_CMD) do

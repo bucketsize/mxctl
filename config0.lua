@@ -1,6 +1,6 @@
    return {
 	  app_dirs = {
-			"/usr/bin",
+			-- "/usr/bin", -- too much
 			"/usr/local/bin",
 			"/usr/share/applications",
 			"/snap/bin",
@@ -8,7 +8,8 @@
 		},
 	  menu_sel = "fzy",
 	  ctrl_bin = "~/.luarocks/bin/mxctl.control",
-	  pop_term = 'urxvt',
+	  pop_term = 'urxvtc',
+	  lux_step = 2,
       
       -- relative to $HOME
       wallpapermode = "folder", -- new|fixed|cycle|folder

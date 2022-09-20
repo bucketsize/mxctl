@@ -14,6 +14,8 @@ Cfg.pop_termopts = {
    alacritty = '--class Popeye -o window.dimensions.columns=64 -o window.dimensions.lines=16 -e ',
    xterm     = '-name Popeye -geom 64x16 -e ',
    urxvt     = '-name Popeye -geometry 64x16 -e ',
+   urxvtc    = '-name Popeye -geometry 64x16 -e ',
+   qterminal = '--profile Popeye -e ',
    foot      = '--app-id Popeye --title Popeye --window-size-chars 64x16 '
 }
 
@@ -39,7 +41,7 @@ function Cfg.build_menu_sel(lst)
 	return string.format("%s | %s ", lst, Cfg.menu_sel)
 end
 function Cfg.build_ctrl_bin(cmd)
-	return string.format("%s fun %s ",Cfg.ctrl_bin, cmd)
+	return string.format("%s %s ",Cfg.ctrl_bin, cmd)
 end
 
 return Cfg

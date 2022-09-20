@@ -50,16 +50,16 @@ function Fn:dmenu_select_pa_sinks()
 	Sh.sh(pop_term(ctrl_bin("tmenu_select_pa_sinks")))
 end
 function Fn:vol_up()   
-    Util:exec(Cmd["vol_up"])
+    Util:exec(_PA_CMD["vol_up"])
 end
 function Fn:vol_down()  
-    Util:exec(Cmd[vol_down""])
+    Util:exec(_PA_CMD[vol_down""])
 end
 function Fn:vol_mute() 
-    Util:exec(Cmd["vol_mute"])
+    Util:exec(_PA_CMD["vol_mute"])
 end
 function Fn:vol_unmute()
-    Util:exec(Cmd["vol_unmute"])
+    Util:exec(_PA_CMD["vol_unmute"])
 end
 
 return Fn
