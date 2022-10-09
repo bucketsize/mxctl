@@ -53,7 +53,7 @@ function Fn:vol_up()
     Util:exec(_PA_CMD["vol_up"])
 end
 function Fn:vol_down()  
-    Util:exec(_PA_CMD[vol_down""])
+    Util:exec(_PA_CMD["vol_down"])
 end
 function Fn:vol_mute() 
     Util:exec(_PA_CMD["vol_mute"])
