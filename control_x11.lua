@@ -98,28 +98,21 @@ function getElem(t, indexes)
 	end
 end
 
-function outgrid_config(outgrid, d, o)
+function outgrid_config(outgrid, o)
    if o then
-	  local mode = o.modes[1]
-	  for _,m in ipairs(o.modes) do
-		 --print("?y", m.x, m.y, d.mode, type(m.y), type(d.mode))
-		 if (tonumber(m.y) == d.mode.y) and (tonumber(m.x) == d.mode.x) then
-			--print("configure", d.name, d.pos[1], d.pos[2])
-			mode = m
-			break
-		 end
+	  for i,m in ipairs(o.modes) do
+		  o.name = tostring(i)
+		  o.mode = m
+		  o.pos  = {}  
+		  o.extra_opts = {} 
+		  outgrid[1] = {}
+		  outgrid[1][i] = o
 	  end
-	  o.name = d.name
-	  o.mode = mode
-	  o.pos = d.pos
-	  o.extra_opts = d.extra_opts
-	  outgrid[d.pos[1]] = {}
-	  outgrid[d.pos[1]][d.pos[2]] = o
    end
 end
 
-function outgrid_controls_config(outgrid, outgrid_ctl, d, o0)
-   local x, y = d.pos[1], d.pos[2]
+function outgrid_controls_config(outgrid, outgrid_ctl, o)
+   local x, y = 0, 0 -- TODO: get from previous screen 
    local o = get2dElem(outgrid, x, y)
    if o then
 	  local off_xo, off_yo = get2dElem(outgrid, x-1, y), get2dElem(outgrid, x, y-1)
@@ -127,12 +120,12 @@ function outgrid_controls_config(outgrid, outgrid_ctl, d, o0)
 	  if off_xo == nil then
 		 off_x = 0
 	  else
-		 off_x = off_xo.mode.x * d.pos[1]
+		 off_x = off_xo.mode.x * x
 	  end
 	  if off_yo == nil then
 		 off_y = 0
 	  else
-		 off_y = off_xo.mode.y * d.pos[2]
+		 off_y = off_xo.mode.y * y
 	  end
 
 	  local dOn = string.format(DISPLAY_ON
@@ -142,23 +135,22 @@ function outgrid_controls_config(outgrid, outgrid_ctl, d, o0)
 								, o.extra_opts)
 	  local dOff = string.format(DISPLAY_OFF, o.name)
 
-	  outgrid_ctl[d.name .. " on"]  = dOn
-	  outgrid_ctl[d.name .. " off"] = dOff
+	  outgrid_ctl[string.format("+ %s (%dx%d)", o.name, o.mode.x, o.mode.y)] = dOn
+	  outgrid_ctl[string.format("- %s (%dx%d)", o.name, o.mode.x, o.mode.y)] = dOff
    end
 end
 
 function xrandr_configs()
    local outputs = xrandr_info()
    local outgrid = {}
-   for _,d in ipairs(DISPLAYS) do
+   for _, o in ipairs(outputs) do
 	  -- print("configure", i, d.name)
-	  local o = outputs[d.name]
-	  outgrid_config(outgrid, d, o)
+	  outgrid_config(outgrid, o)
    end
 
    local outgrid_ctl = {}
-   for _,d in ipairs(DISPLAYS) do
-	  outgrid_controls_config(outgrid, outgrid_ctl, d, o)
+   for _, o in ipairs(outputs) do
+	  outgrid_controls_config(outgrid, outgrid_ctl, o)
    end
    return outgrid, outgrid_ctl
 end
