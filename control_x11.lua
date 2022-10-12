@@ -60,16 +60,17 @@ function xrandr_info()
 	for line in h:lines() do
 		local otc = line:match("^([%w-]+) connected ")
 		if otc then
+			print("xrandr_info, parse connected", otc)
 			ot = otc
 			if ots[ot] == nil then
-				ots[ot] = {modes={}}
+				ots[ot] = {modes={}, name=ot}
 			end
 		else
 			if ot then
 				local mx, my = string.match(line, "%s+(%d+)x(%d+)")
 				if my then
 					table.insert(ots[ot].modes, {x=mx, y=my})
-					-- print(ot, mx, my)
+					print("xrandr_info, mode", ot, mx, my)
 				end
 			end
 		end
@@ -98,61 +99,66 @@ function getElem(t, indexes)
 	end
 end
 
+function mk_key(l) 
+	return Util:join("_", l)
+end
+
 function outgrid_config(outgrid, o)
-   if o then
-	  for i,m in ipairs(o.modes) do
-		  o.name = tostring(i)
-		  o.mode = m
-		  o.pos  = {}  
-		  o.extra_opts = {} 
-		  outgrid[1] = {}
-		  outgrid[1][i] = o
-	  end
-   end
+	for _, d in ipairs(DISPLAYS) do
+		if o.name == d.name then
+			o.mode = d.mode
+			o.pos  = d.pos
+			o.extra_opts = d.extra_opts
+		else
+			o.mode = o.modes[1]
+			o.pos = {0,0}
+			o.extra_opts = ""
+		end
+	end
+	outgrid[mk_key(o.pos)] = o
 end
 
 function outgrid_controls_config(outgrid, outgrid_ctl, o)
-   local x, y = 0, 0 -- TODO: get from previous screen 
-   local o = get2dElem(outgrid, x, y)
-   if o then
-	  local off_xo, off_yo = get2dElem(outgrid, x-1, y), get2dElem(outgrid, x, y-1)
-	  local off_x, off_y
-	  if off_xo == nil then
-		 off_x = 0
-	  else
-		 off_x = off_xo.mode.x * x
-	  end
-	  if off_yo == nil then
-		 off_y = 0
-	  else
-		 off_y = off_xo.mode.y * y
-	  end
+	for _, m in pairs(o.modes) do
+		local x, y = o.pos[1], o.pos[2]
+		local off_xo, off_yo = outgrid[mk_key({x-1, y})], outgrid[mk_key({x, y-1})]
+		local off_x, off_y
+		if off_xo == nil then
+			off_x = 0
+		else
+			off_x = off_xo.mode.x * x
+		end
+		if off_yo == nil then
+			off_y = 0
+		else
+			off_y = off_xo.mode.y * y
+		end
 
-	  local dOn = string.format(DISPLAY_ON
-								, o.name
-								, o.mode.x, o.mode.y
-								, off_x, off_y
-								, o.extra_opts)
-	  local dOff = string.format(DISPLAY_OFF, o.name)
+		local dOn = string.format(DISPLAY_ON
+			, o.name
+			, m.x, m.y
+			, off_x, off_y
+			, o.extra_opts)
+		local dOff = string.format(DISPLAY_OFF, o.name)
 
-	  outgrid_ctl[string.format("+ %s (%dx%d)", o.name, o.mode.x, o.mode.y)] = dOn
-	  outgrid_ctl[string.format("- %s (%dx%d)", o.name, o.mode.x, o.mode.y)] = dOff
-   end
+		outgrid_ctl[string.format("+ %s (%dx%d) (%d,%d)", o.name, m.x, m.y, off_x, off_y)] = dOn
+		outgrid_ctl[string.format("- %s (%dx%d) (%d,%d)", o.name, m.x, m.y, off_x, off_y)] = dOff
+	end
 end
 
 function xrandr_configs()
-   local outputs = xrandr_info()
-   local outgrid = {}
-   for _, o in ipairs(outputs) do
-	  -- print("configure", i, d.name)
-	  outgrid_config(outgrid, o)
-   end
+	local outputs = xrandr_info()
+	local outgrid = {}
+	for otc, o in pairs(outputs) do
+		print("xrandr_configs, item", otc, o)
+		outgrid_config(outgrid, o)
+	end
 
-   local outgrid_ctl = {}
-   for _, o in ipairs(outputs) do
-	  outgrid_controls_config(outgrid, outgrid_ctl, o)
-   end
-   return outgrid, outgrid_ctl
+	local outgrid_ctl = {}
+	for otc, o in pairs(outputs) do
+		outgrid_controls_config(outgrid, outgrid_ctl, o)
+	end
+	return outgrid, outgrid_ctl
 end
 
 local Funs = {}
@@ -168,143 +174,143 @@ function Funs:tmenu_setup_video()
 	local opts = table.concat(Util:keys(vgridctl), '\n')
 
 	Pr.pipe()
-	.add(Sh.exec(menu_sel(string.format('echo "%s"', opts))))
-	.add(function(id)
-		Sh.sh(vgridctl[id])
-	end)
-	.run()
-end
-
-function Funs:dmenu_setup_video()
-	Sh.sh(pop_term(ctrl_bin("tmenu_setup_video")))
-end
-
-function Funs:tmenu_select_window()
-	local ws = {}
-	local wl = {}
-	Pr.pipe()
-	.add(Sh.exec('wmctrl -l'))
-	.add(Sh.grep('(%w+)%s+(%d+)%s+([%w%p]+)%s+(.*)'))
-	.add(function(arr)
-		if arr then
-			ws[arr[4]]= {id = arr[1], ws = arr[2], name = arr[4]}
-			return arr[4]
-		end
-	end)
-	.add(function(name)
-		if name then
-			table.insert(wl, name)
-		end
-	end)
-	.run()
-
-	local wl_opts = table.concat(wl, '\n')
-	Pr.pipe()
-	.add(Sh.exec(menu_sel(string.format('echo "%s"', wl_opts))))
-	.add(function(name)
-		if name then
-			Sh.sh('wmctrl -ia ' .. ws[name].id)
-		end
-	end)
-	.run()
-end
-function Funs:dmenu_select_window()
-	Sh.sh(pop_term(ctrl_bin("tmenu_select_window")))
-end
-function Funs:scr_lock_if()
-	local iv = nil
-	Pr.pipe()
-		.add(Sh.exec('pactl list sinks'))
-		.add(Sh.grep('RUNNING'))
-		.add(Sh.echo())
-		.add(function(x)
-			if x then
-				iv = x
-			end
+		.add(Sh.exec(menu_sel(string.format('echo "%s"', opts))))
+		.add(function(id)
+			Sh.sh(vgridctl[id])
 		end)
-		.run()
-	if iv == nil then
-		Sh.sh(_CMD['scr_lock'])
+			.run()
 	end
-end
-local _LOGOUT_CMD = {
-	bspwm   = "bspc quit",
-	i3wm    = "i3-msg exit",
-	openbox = "openbox --exit",
-	xmonad  = "",
-}
 
-function Funs:tmenu_exit()
-   local wminf = Util:wminfo()
-   local exit_with = {
-	  lock      = _CMD["scr_lock"],
-	  logout    = _LOGOUT_CMD[wminf.wm:lower()], 
-	  suspend   = "systemctl suspend",
-	  hibernate = "systemctl hibernate",
-	  reboot    = "systemctl reboot",
-	  shutdown  = "systemctl poweroff -i",
-   }
-
-   local opts = {}
-   for k, _ in pairs(exit_with) do
-	 table.insert(opts, k)
-   end
-
-   Pr.pipe()
-	   .add(Sh.exec(menu_sel(string.format('echo "%s"',
-	   		table.concat(opts, '\n')))))
-	   .add(function(name)
-		   if name then
-			   if exit_with[name] ~= "" then
-				   Sh.sh(exit_with[name])
-			   else
-				   print("no ", name, "for", wminf.wm)
-			   end
-		   end
-		   return name
-	   end)
-	   .run()
-end
-function Funs:dmenu_exit()
-   Sh.sh(pop_term(ctrl_bin("tmenu_exit")))
-end
-
-function brightness(delta)
-	print("brightness", delta)
-	Pr.pipe()
-		.add(Sh.exec("ls /sys/class/backlight"))
-		.add(function(bf)
-			if bf then
-				local max = tonumber(Ut:head_file("/sys/class/backlight/"..bf.."/max_brightness"))
-				local cur = tonumber(Ut:head_file("/sys/class/backlight/"..bf.."/brightness"))
-				local tar = math.floor(cur + delta*max/100)
-				if tar > max then
-					tar = max
-				end
-				if tar < 0 then
-					tar = cur
-				end
-				print("brightness", delta, bf, cur, tar, max)
-				local h = assert(io.open("/sys/class/backlight/"..bf.."/brightness", "w"))
-				h:write(tar)
-				h:close()
-			end
-		end)
-		.run()
-end
-
-function Funs:brightness_up()
-	brightness(Cfg.lux_step)
-end
-
-function Funs:brightness_down()
-	brightness(-Cfg.lux_step)
-end
-
-for f,cmd in pairs(_CMD) do
-	Funs[f] = function() 
-		Sh.sh(cmd)
+	function Funs:dmenu_setup_video()
+		Sh.sh(pop_term(ctrl_bin("tmenu_setup_video")))
 	end
-end
 
-return Funs
+	function Funs:tmenu_select_window()
+		local ws = {}
+		local wl = {}
+		Pr.pipe()
+			.add(Sh.exec('wmctrl -l'))
+			.add(Sh.grep('(%w+)%s+(%d+)%s+([%w%p]+)%s+(.*)'))
+			.add(function(arr)
+				if arr then
+					ws[arr[4]]= {id = arr[1], ws = arr[2], name = arr[4]}
+					return arr[4]
+				end
+			end)
+				.add(function(name)
+					if name then
+						table.insert(wl, name)
+					end
+				end)
+					.run()
+
+				local wl_opts = table.concat(wl, '\n')
+				Pr.pipe()
+					.add(Sh.exec(menu_sel(string.format('echo "%s"', wl_opts))))
+					.add(function(name)
+						if name then
+							Sh.sh('wmctrl -ia ' .. ws[name].id)
+						end
+					end)
+						.run()
+				end
+				function Funs:dmenu_select_window()
+					Sh.sh(pop_term(ctrl_bin("tmenu_select_window")))
+				end
+				function Funs:scr_lock_if()
+					local iv = nil
+					Pr.pipe()
+						.add(Sh.exec('pactl list sinks'))
+						.add(Sh.grep('RUNNING'))
+						.add(Sh.echo())
+						.add(function(x)
+							if x then
+								iv = x
+							end
+						end)
+							.run()
+						if iv == nil then
+							Sh.sh(_CMD['scr_lock'])
+						end
+					end
+					local _LOGOUT_CMD = {
+						bspwm   = "bspc quit",
+						i3wm    = "i3-msg exit",
+						openbox = "openbox --exit",
+						xmonad  = "",
+					}
+
+					function Funs:tmenu_exit()
+						local wminf = Util:wminfo()
+						local exit_with = {
+							lock      = _CMD["scr_lock"],
+							logout    = _LOGOUT_CMD[wminf.wm:lower()], 
+							suspend   = "systemctl suspend",
+							hibernate = "systemctl hibernate",
+							reboot    = "systemctl reboot",
+							shutdown  = "systemctl poweroff -i",
+						}
+
+						local opts = {}
+						for k, _ in pairs(exit_with) do
+							table.insert(opts, k)
+						end
+
+						Pr.pipe()
+							.add(Sh.exec(menu_sel(string.format('echo "%s"',
+							table.concat(opts, '\n')))))
+							.add(function(name)
+								if name then
+									if exit_with[name] ~= "" then
+										Sh.sh(exit_with[name])
+									else
+										print("no ", name, "for", wminf.wm)
+									end
+								end
+								return name
+							end)
+								.run()
+						end
+						function Funs:dmenu_exit()
+							Sh.sh(pop_term(ctrl_bin("tmenu_exit")))
+						end
+
+						function brightness(delta)
+							print("brightness", delta)
+							Pr.pipe()
+								.add(Sh.exec("ls /sys/class/backlight"))
+								.add(function(bf)
+									if bf then
+										local max = tonumber(Ut:head_file("/sys/class/backlight/"..bf.."/max_brightness"))
+										local cur = tonumber(Ut:head_file("/sys/class/backlight/"..bf.."/brightness"))
+										local tar = math.floor(cur + delta*max/100)
+										if tar > max then
+											tar = max
+										end
+										if tar < 0 then
+											tar = cur
+										end
+										print("brightness", delta, bf, cur, tar, max)
+										local h = assert(io.open("/sys/class/backlight/"..bf.."/brightness", "w"))
+										h:write(tar)
+										h:close()
+									end
+								end)
+									.run()
+							end
+
+							function Funs:brightness_up()
+								brightness(Cfg.lux_step)
+							end
+
+							function Funs:brightness_down()
+								brightness(-Cfg.lux_step)
+							end
+
+							for f,cmd in pairs(_CMD) do
+								Funs[f] = function() 
+									Sh.sh(cmd)
+								end
+							end
+
+							return Funs

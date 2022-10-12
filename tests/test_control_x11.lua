@@ -22,7 +22,7 @@ function test_scr_lock_if()
 end
 
 function test_brightness()
-   Ctl.brightness(10)
+   -- Ctl.brightness(10)
 end
 
 os.exit( luaunit.LuaUnit.run() )
