@@ -69,7 +69,7 @@ function xrandr_info()
 			if ot then
 				local mx, my = string.match(line, "%s+(%d+)x(%d+)")
 				if my then
-					table.insert(ots[ot].modes, {x=mx, y=my})
+					table.insert(ots[ot].modes, {x=mx, y=my, active=false})
 					print("xrandr_info, mode", ot, mx, my)
 				end
 			end
@@ -106,11 +106,24 @@ end
 function outgrid_config(outgrid, o)
 	for _, d in ipairs(DISPLAYS) do
 		if o.name == d.name then
-			o.mode = d.mode
+			print("outgrid_config, display config", d.mode.x, d.mode.y)
+			for _, m in ipairs(o.modes) do
+				if (m.x == d.mode.x) and (m.y == d.mode.y) then
+					o.mode = m
+					break
+				end
+			end
+			if not o.mode then
+				print("outgrid_config, display config not found, defaulting", o.modes[1].x, o.modes[1].y)
+				o.mode = o.modes[1]
+			end
+			o.mode.active = true
 			o.pos  = d.pos
 			o.extra_opts = d.extra_opts
 		else
+			print("outgrid_config, display default", o.modes[1].x, o.modes[1].y)
 			o.mode = o.modes[1]
+			o.mode.active = true
 			o.pos = {0,0}
 			o.extra_opts = ""
 		end
@@ -141,8 +154,17 @@ function outgrid_controls_config(outgrid, outgrid_ctl, o)
 			, o.extra_opts)
 		local dOff = string.format(DISPLAY_OFF, o.name)
 
-		outgrid_ctl[string.format("+ %s (%dx%d) (%d,%d)", o.name, m.x, m.y, off_x, off_y)] = dOn
-		outgrid_ctl[string.format("- %s (%dx%d) (%d,%d)", o.name, m.x, m.y, off_x, off_y)] = dOff
+		local flag = ""
+		if m.active then
+			flag = "active"
+		end
+
+		local ar = m.x / m.y
+
+		outgrid_ctl[string.format("+ %s (%dx%d) <%d,%d> %.1f %s"
+			, o.name, m.x, m.y, off_x, off_y, ar, flag)] = dOn
+		--outgrid_ctl[string.format("- %s (%dx%d) <%d,%d> %.1f %s"
+		--	, o.name, m.x, m.y, off_x, off_y, ar, flag)] = dOff
 	end
 end
 
