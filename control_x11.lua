@@ -161,7 +161,7 @@ function outgrid_controls_config(outgrid, outgrid_ctl, o)
 
 		local ar = m.x / m.y
 
-		outgrid_ctl[string.format("+ %s (%dx%d) <%d,%d> %.1f %s"
+		outgrid_ctl[string.format("%s (%dx%d) <%d,%d> %.1f %s"
 			, o.name, m.x, m.y, off_x, off_y, ar, flag)] = dOn
 		--outgrid_ctl[string.format("- %s (%dx%d) <%d,%d> %.1f %s"
 		--	, o.name, m.x, m.y, off_x, off_y, ar, flag)] = dOff

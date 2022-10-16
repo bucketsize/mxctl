@@ -1,19 +1,18 @@
 #!/usr/bin/env lua
-
+package.path = '?.lua;' .. package.path
 require "luarocks.loader"
+luaunit = require('luaunit')
 
-package.path = os.getenv("HOME") .. '/?.lua;'
-    .. package.path
 
 local Util = require("minilib.util")
-local Ctl  = require("mxctl.control")
+local Ctl  = require("control_app")
 
 function test_list()
-   assert(Ctl.Funs.find)
+   assert(Ctl.find)
 end
 
 function test_findapps()
-    local apps = Ctl.Funs.find()
+    local apps = Ctl.find()
     table.sort(apps, function(a, b)
         return a < b
     end)
@@ -21,15 +20,16 @@ function test_findapps()
 end
 
 function test_parsedesktopfile()
-   local app = Ctl.Funs.parsedesktopfile(nil, "tests/res/URxvtc.desktop")
+   local app = Ctl.parsedesktopfile(nil, "tests/res/URxvtc.desktop")
    assert(app)
 end
 
-function test_dmenu_run()
-   local app = Ctl.Funs.tmenu_run()
+function test_tmenu_run()
+   local app = Ctl.tmenu_run()
 end
 
-test_list()
-test_findapps()
-test_parsedesktopfile()
-test_dmenu_run()
+function test_proc_run()
+   local app = Ctl.tmenu_list_proc()
+end
+
+os.exit( luaunit.LuaUnit.run() )

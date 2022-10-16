@@ -16,6 +16,7 @@ local Fn = {}
 local misc = {
 	["kb led on"]  = x11.kb_led_on,
 	["kb led off"] = x11.kb_led_off,
+	["setup display"] = x11.tmenu_setup_video,
 	["set wallpaper"] = wpc.tmenu_set_wallpaper, 
 }
 
