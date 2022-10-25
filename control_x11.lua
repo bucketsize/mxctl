@@ -69,8 +69,8 @@ function xrandr_info()
 			if ot then
 				local mx, my = string.match(line, "%s+(%d+)x(%d+)")
 				if my then
-					table.insert(ots[ot].modes, {x=mx, y=my, active=false})
 					print("xrandr_info, mode", ot, mx, my)
+					table.insert(ots[ot].modes, {x=tonumber(mx), y=tonumber(my), active=false})
 				end
 			end
 		end
@@ -106,13 +106,17 @@ end
 function outgrid_config(outgrid, o)
 	for _, d in ipairs(DISPLAYS) do
 		if o.name == d.name then
-			print("outgrid_config, display config", d.mode.x, d.mode.y)
+			print("outgrid_config, display config",d.name, d.mode.x, d.mode.y)
 			for _, m in ipairs(o.modes) do
+				print("\t mode=", m.x, m.y, type(m.x), type(d.mode.y))
 				if (m.x == d.mode.x) and (m.y == d.mode.y) then
 					o.mode = m
 					break
 				end
 			end
+			
+			print(">>1", o.mode)
+
 			if not o.mode then
 				print("outgrid_config, display config not found, defaulting", o.modes[1].x, o.modes[1].y)
 				o.mode = o.modes[1]
