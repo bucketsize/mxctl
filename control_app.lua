@@ -12,7 +12,6 @@ local pop_term = Cfg.build_pop_term
 local menu_sel = Cfg.build_menu_sel
 local ctrl_bin = Cfg.build_ctrl_bin
 
-
 function hazapp(bs, b)
     for _,bi in ipairs(bs) do
         if bi.exec == b.exec then
@@ -135,7 +134,11 @@ function F:tmenu_run()
 	f:close()
 	M.IO.read_lines_pout("fzf < /tmp/mxcmd.out"):fmap(function(x)
 		x:fmap(function(y)
-            Sh.launch(pmap[y])
+			if Cfg.termopts[y] then
+				Sh.launch(Cfg.build_term(y))
+			else
+            	Sh.launch(pmap[y])
+			end
 		end)
 	end)
 end

@@ -1,8 +1,8 @@
 #!/usr/bin/env lua
+
 package.path = '?.lua;' .. package.path
 require "luarocks.loader"
 luaunit = require('luaunit')
-
 
 local Util = require("minilib.util")
 local Ctl  = require("control_app")

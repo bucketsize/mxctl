@@ -8,7 +8,7 @@
 		},
 	  menu_sel = "fzy",
 	  ctrl_bin = "~/.luarocks/bin/mxctl.control",
-	  pop_term = 'urxvtc',
+	  pop_term = 'stterm',
 	  lux_step = 2,
       
       -- relative to $HOME
