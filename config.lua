@@ -20,8 +20,8 @@ Cfg.pop_termopts = {
    xterm     = '-name Popeye -geom 64x16 -e',
    urxvt     = '-name Popeye -geometry 64x16 -e',
    urxvtc    = '-name Popeye -geometry 64x16 -e',
-   st        = '-n Popeye -c Popeye -g 64x16 -e',
-   stterm    = '-n Popeye -c Popeye -g 64x16 -e',
+   st        = '-c Popeye -g 64x16 -e',
+   stterm    = '-c Popeye -g 64x16 -e',
    qterminal = '--profile Popeye -e',
    foot      = '--app-id Popeye --title Popeye --window-size-chars 64x16'
 }
