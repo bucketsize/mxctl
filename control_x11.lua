@@ -166,9 +166,7 @@ function outgrid_controls_config(outgrid, outgrid_ctl, o)
 		local ar = m.x / m.y
 
 		outgrid_ctl[string.format("%s (%dx%d) <%d,%d> %.1f %s"
-			, o.name, m.x, m.y, off_x, off_y, ar, flag)] = dOn
-		--outgrid_ctl[string.format("- %s (%dx%d) <%d,%d> %.1f %s"
-		--	, o.name, m.x, m.y, off_x, off_y, ar, flag)] = dOff
+			, o.name, m.x, m.y, off_x, off_y, ar, flag)] = {on=dOn, off=dOff, active=m.active}
 	end
 end
 
@@ -189,9 +187,11 @@ end
 
 local Funs = {}
 function Funs:setup_video()
-	local _, outgrid_ctl = xrandr_configs()
-	for _,d in ipairs(DISPLAYS) do
-		Sh.sh(outgrid_ctl[d.name .. " on"])
+	local outgrid, outgrid_ctl = xrandr_configs()
+	for _,d in pairs(outgrid_ctl) do
+		if d.active then
+			Sh.sh(d.on)
+		end
 	end
 end
 
@@ -202,7 +202,9 @@ function Funs:tmenu_setup_video()
 	Pr.pipe()
 		.add(Sh.exec(menu_sel(string.format('echo "%s"', opts))))
 		.add(function(id)
-			Sh.sh(vgridctl[id])
+			if id then
+				Sh.sh(vgridctl[id].on)
+			end
 		end)
 			.run()
 	end
@@ -260,6 +262,7 @@ function Funs:tmenu_setup_video()
 						end
 					end
 					local _LOGOUT_CMD = {
+						lg3d    = "bspc quit",
 						bspwm   = "bspc quit",
 						i3wm    = "i3-msg exit",
 						openbox = "openbox --exit",
