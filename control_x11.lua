@@ -240,8 +240,8 @@ function Funs:scr_lock_if()
 	end
 end
 local _LOGOUT_CMD = {
-	lg3d    = "bspc quit",
 	bspwm   = "bspc quit",
+	lg3d    = "bspc quit",
 	i3wm    = "i3-msg exit",
 	openbox = "openbox --exit",
 	xmonad  = "",
@@ -250,12 +250,12 @@ local _LOGOUT_CMD = {
 function Funs:tmenu_exit()
 	local wminf = Util:wminfo()
 	local exit_with = {
-		lock      = xcmd.scr_lock(),
+		lock      = xcmd.scr_lock_cmd(),
 		logout    = _LOGOUT_CMD[wminf.wm:lower()], 
-		suspend   = "systemctl suspend",
-		hibernate = "systemctl hibernate",
 		reboot    = "systemctl reboot",
 		shutdown  = "systemctl poweroff -i",
+		hibernate = "systemctl hibernate",
+		suspend   = "systemctl suspend",
 	}
 
 	local opts = {}
@@ -264,8 +264,7 @@ function Funs:tmenu_exit()
 	end
 
 	Pr.pipe()
-		.add(Sh.exec(menu_sel(string.format('echo "%s"',
-		table.concat(opts, '\n')))))
+		.add(Sh.exec(menu_sel(string.format('echo "%s"', table.concat(opts, '\n')))))
 		.add(function(name)
 			if name then
 				if exit_with[name] ~= "" then

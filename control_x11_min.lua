@@ -30,6 +30,9 @@ for f,cmd in pairs(_CMD) do
 	Funs[f] = function() 
 		Sh.exec_cmd(cmd)
 	end
+	Funs[f.."_cmd"] = function() 
+		return cmd
+	end
 end
 
 return Funs
