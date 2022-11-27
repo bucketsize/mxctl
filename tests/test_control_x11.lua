@@ -1,5 +1,6 @@
 #!/usr/bin/env lua
-packagepath = '?.lua;' .. package.path
+
+package.path = '?.lua;' .. package.path
 require "luarocks.loader"
 luaunit = require('luaunit')
 

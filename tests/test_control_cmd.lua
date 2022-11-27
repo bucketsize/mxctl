@@ -1,15 +1,14 @@
 #!/usr/bin/env lua
 
+package.path = '?.lua;' .. package.path
 require "luarocks.loader"
-
-package.path = os.getenv("HOME") .. '/?.lua;'
-    .. package.path
+luaunit = require('luaunit')
 
 local Util = require("minilib.util")
-local Ctl  = require("mxctl.control")
+local Ctl  = require("control_cmd")
 
 function test_control_tmenu_misc()
-	Ctl.Funs.tmenu_misc()
+	Ctl.tmenu_misc()
 end
 
-test_control_tmenu_misc()
+os.exit( luaunit.LuaUnit.run() )

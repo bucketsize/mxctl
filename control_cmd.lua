@@ -7,6 +7,8 @@ local Cfg = require("mxctl.config")
 local x11 = require("mxctl.control_x11")
 local wpc = require("mxctl.control_wallpaper")
 
+local logger = require("minilib.logger").create()
+
 local pop_term = Cfg.build_pop_term 
 local menu_sel = Cfg.build_menu_sel
 local ctrl_bin = Cfg.build_ctrl_bin
@@ -34,7 +36,7 @@ function exec_options(eopts)
 			   if eopts[name] and eopts[name] ~= "" then
 				   eopts[name]()
 			   else
-				   print("no ", name, "for")
+				   logger.info("no %s for", name)
 			   end
 		   end
 		   return name

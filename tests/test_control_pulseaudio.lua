@@ -1,15 +1,14 @@
 #!/usr/bin/env lua
 
+package.path = '?.lua;' .. package.path
 require "luarocks.loader"
-
-package.path = os.getenv("HOME") .. '/?.lua;'
-    .. package.path
+luaunit = require('luaunit')
 
 local Util = require("minilib.util")
-local Ctl  = require("mxctl.control")
+local Ctl  = require("control_pulseaudio")
 
 function test_dmenu_select_pa_sinks()
-	Ctl.Funs.tmenu_select_pa_sinks()
+	Ctl.tmenu_select_pa_sinks()
 end
 
-test_dmenu_select_pa_sinks()
+os.exit( luaunit.LuaUnit.run() )

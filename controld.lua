@@ -4,11 +4,12 @@ require "luarocks.loader"
 
 local Ctrl = require("mxctl.control")
 local Util = require("minilib.util")
+local logger = require("minilib.logger").create()
 
 local Handler = {
    cmd = function(client, p)
 	  local cmd = Ctrl.Cmds[p]
-	  print("cmd>", p, cmd)
+	  logger.info("cmd %s, %s", p, cmd)
 	  if cmd then
 		 Util:exec(cmd)
 	  else
@@ -18,7 +19,7 @@ local Handler = {
    end,
    fun = function(client, p)
 	  local cmd = Ctrl.Funs[p]
-	  print("fun>", p)
+	  logger.info("fun %s", p)
 	  if cmd then
 		 local rcmd = cmd()
 		 if rcmd then

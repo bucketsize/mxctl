@@ -41,25 +41,25 @@ function Fn:tmenu_select_pa_sinks()
 	.add(Sh.exec(menu_sel(string.format('echo "%s"', opss))))
 	.add(function(id)
 		if id then
-			Sh.sh('pactl set-default-sink '..id)
+			Sh.exec_cmd('pactl set-default-sink '..id)
 		end
 	end)
 	.run()
 end
 function Fn:dmenu_select_pa_sinks()
-	Sh.sh(pop_term(ctrl_bin("tmenu_select_pa_sinks")))
+	Sh.exec_cmd(pop_term(ctrl_bin("tmenu_select_pa_sinks")))
 end
 function Fn:vol_up()   
-    Util:exec(_PA_CMD["vol_up"])
+    Sh.exec_cmd(_PA_CMD["vol_up"])
 end
 function Fn:vol_down()  
-    Util:exec(_PA_CMD["vol_down"])
+	Sh.exec_cmd(_PA_CMD["vol_down"])
 end
 function Fn:vol_mute() 
-    Util:exec(_PA_CMD["vol_mute"])
+    Sh.exec_cmd(_PA_CMD["vol_mute"])
 end
 function Fn:vol_unmute()
-    Util:exec(_PA_CMD["vol_unmute"])
+    Sh.exec_cmd(_PA_CMD["vol_unmute"])
 end
 
 return Fn

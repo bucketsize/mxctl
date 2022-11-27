@@ -1,15 +1,14 @@
 #!/usr/bin/env lua
 
+package.path = '?.lua;' .. package.path
 require "luarocks.loader"
-
-package.path = os.getenv("HOME") .. '/?.lua;'
-    .. package.path
+luaunit = require('luaunit')
 
 local Util = require("minilib.util")
-local Ctl  = require("mxctl.control")
+local Ctl  = require("control_power")
 
 function test_control_monitor_power()
-	Ctl.Funs.monitor_power()
+	Ctl.monitor_power()
 end
 
-test_control_monitor_power()
+os.exit( luaunit.LuaUnit.run() )

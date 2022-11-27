@@ -28,8 +28,4 @@ function test_tmenu_run()
    local app = Ctl.tmenu_run()
 end
 
-function test_proc_run()
-   local app = Ctl.tmenu_list_proc()
-end
-
 os.exit( luaunit.LuaUnit.run() )

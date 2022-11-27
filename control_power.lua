@@ -3,7 +3,9 @@ require "luarocks.loader"
 local Sh   = require('minilib.shell')
 local Pr   = require('minilib.process')
 local Ut   = require('minilib.util')
+local Tr   = require('minilib.timer')
 local Cfg  = require('mxctl.config')
+local logger = require("minilib.logger").create()
 
 local pop_term = Cfg.build_pop_term 
 local menu_sel = Cfg.build_menu_sel
@@ -31,7 +33,7 @@ function F:monitor_power()
 				else
 					if pstat == "ce" then
 						if ce_ep >= 30 then
-							print("going to suspend ...")
+							logger.info("going to suspend ...")
 							-- TODO
 						else
 							ce_ep = ce_ep + 1
@@ -51,8 +53,8 @@ function F:monitor_power()
 		end
 	end)
 	while true do
-		print(coroutine.resume(power_co))
-		Ut.sleep(1)
+		coroutine.resume(power_co)
+		Tr.sleep(1)
 	end
 end
 

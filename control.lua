@@ -21,9 +21,8 @@ mergeWith(Fn, require('mxctl.control_wallpaper'))
 
 ------------------------------------------------------
 function Fn:help()
-   print("fun")
    for k,_ in pairs(Fn) do
-      print('\t',k)
+      print('\t', k)
    end
 end
 

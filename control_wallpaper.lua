@@ -5,6 +5,7 @@ local Util         = require("minilib.util")
 local Cfg          = require("mxctl.config")
 local Sh           = require("minilib.shell")
 local Pr           = require("minilib.process")
+local logger = require("minilib.logger").create()
 
 local wlprs = os.getenv("HOME").."/.wlprs/"
 math.randomseed(os.time())
@@ -17,7 +18,7 @@ function find(path)
     local h = assert(io.popen("find "..path.." -type f"))
     local t={}
     for i in h:lines() do
-        -- print("found", i)
+        -- logger.info("found", i)
         table.insert(t, i)
     end
     return t
@@ -38,7 +39,7 @@ local urlr = {
             return string.format(s, randstr(13))
         end,
         parse = function(s)
-            print(s)
+            logger.info(s)
             local s1, s2 = s:find("<url>"), s:find("</url>")
             local res = s:sub(s1+5, s2-1)
             local s3, s4 = res:find("id="), res:find("jpg")
@@ -52,7 +53,7 @@ local urlr = {
             return "https://api.nasa.gov/planetary/apod?api_key=cRFIBE5eZnucIQxhm3jJGJopmXDBTQsTkAQal6Qu&count=1"
         end,
         parse = function(s)
-			print("TODO", s)
+			logger.info("TODO %s", s)
         end
     }
 }
@@ -62,11 +63,11 @@ function geturlonsuccess(url)
 		.new_from_uri(url)
 		:go()
     if err then
-        print(string.format("Error get [%s]: %s, %s", url, err))
+        logger.info("Error get [%s]: %s, %s", url, err)
         return nil, err
     end
 	if headers:get ":status" ~= "200" then
-        print(string.format("Error get [%s]: %s, %s", url, err))
+        logger.info("Error get [%s]: %s, %s", url, err)
 		return nil, "error: httpstatus = "..err
 	end
     return stream, nil
@@ -78,28 +79,28 @@ function F:getwallpaper(provider)
     if not urlr[provider] then 
         error("invalid provider: "..provider)
     end
-    print("Using wallpaper provider:"..provider) 
+    logger.info("Using wallpaper provider %s", provider) 
     local pro = urlr[provider]
     local stream1, err1 = geturlonsuccess(pro.url())
     if err1 then
-        print("Error on request:", err1)
+        logger.info("Error on request %s", err1)
         return
     end
     local body, err2 = stream1:get_body_as_string()
     if err2 then
-        print("Error reading response:", err2)
+        logger.info("Error reading response %s", err2)
         return
     end
 	local url, name = pro.parse(body)
-    print("wallpaper url:", url)
-    print("wallpaper name:", name)
+    logger.info("wallpaper url  %s", url)
+    logger.info("wallpaper name %s", name)
 
 	local stream, err = geturlonsuccess(url)
     local file = io.open(wlprs..name, "w")
     local _, ferr, fcode = stream:save_body_to_file(file, 2)
     file:close()
     if ferr then
-        print("Error saving file: ", ferr, fcode)
+        logger.info("Error saving file %s, %s", ferr, fcode)
     end
     return wlprs..name
 end
@@ -123,8 +124,8 @@ function F:applywallpaper()
     else
         wp = F:selectwallpaper(wlprs)
     end
-    print("applying wallpaper "..wp)
-    Sh.sh("feh --bg-scale '"..wp.."'")
+    logger.info("applying wallpaper %s", wp)
+    Sh.exec_cmd("feh --bg-scale '"..wp.."'")
 end
 
 function exec_select(eopts, fn)
@@ -138,7 +139,7 @@ function exec_select(eopts, fn)
 	   		table.concat(labels, '\n')))))
 	   .add(function(k)
 		   if k then
-			   print("exec_select: ", k, eopts[k])
+			   logger.info("exec_select %s %s ", k, eopts[k])
 			   fn(k, eopts[k])
 		   end
 		   return k
@@ -152,7 +153,7 @@ function F:tmenu_set_wallpaper()
 		wps[string.format("%d: %s", k, Sh.basename(v))] = v
 	end
 	exec_select(wps, function(k, wp)
-		Sh.sh("feh --bg-scale '"..wp.."'")
+		Sh.exec_cmd("feh --bg-scale '"..wp.."'")
 	end)
 end
 

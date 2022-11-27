@@ -1,12 +1,13 @@
 local Sh = require("minilib.shell")
 local Home = os.getenv("HOME")
+local logger = require("minilib.logger").create()
 
 local Cfg
 if Sh.path_exists(Home.."/.config/mxctl/config") then
-	--print("config < existing")
+	--logger.info("config < existing")
 	Cfg = loadfile(Home.."/.config/mxctl/config")()
 else
-	--print("config < default")
+	--logger.info("config < default")
 	Cfg = require("mxctl.config0")
 end
 
@@ -37,8 +38,8 @@ function Cfg.get_renderer()
 end
 
 if not Cfg.pop_termopts[Cfg.pop_term] then
-	print("not supporting "..Cfg.pop_term)
-	print(".. using `stterm` please install")
+	logger.info("config, not supporting %s", Cfg.pop_term)
+	logger.info("config, using `stterm` please install")
 	Cfg.pop_term = "stterm"
 end
 

@@ -6,6 +6,8 @@ local Util = require('minilib.util')
 local M    = require('minilib.monad')
 local Cfg  = require('mxctl.config')
 
+local logger = require("minilib.logger").create()
+
 local USER = os.getenv("USER")
 local appcache = "/tmp/appcache.mxctl."..USER..".lua"
 local pop_term = Cfg.build_pop_term
@@ -23,7 +25,7 @@ end
 
 function buildapp(tag, bs, b)
     if (b.name and b.exec) and (not hazapp(bs, b)) then
-        -- print(string.format("%s > %s >> %s => %s|", tag, b.bin, b.name, b.exec))
+        -- logger.info(string.format("%s > %s >> %s => %s|", tag, b.bin, b.name, b.exec))
         table.insert(bs, b)
     end
 end
@@ -53,10 +55,10 @@ function F:parsedesktopfile(f)
                         b.bin = b.exec
                     end
                 end
-                -- print("[]debug")
-                -- print(exec)
-                -- print(b.exec)
-                -- print(b.bin)
+                -- logger.info("[]debug")
+                -- logger.info(exec)
+                -- logger.info(b.exec)
+                -- logger.info(b.bin)
             end
         end
     end
@@ -67,7 +69,7 @@ end
 
 function F:find()
     local paths = table.concat(Cfg.app_dirs, " ")
-    print("find in:", paths)
+    logger.info("find in %s", paths)
 
     local apps = {}
 
@@ -90,7 +92,7 @@ function F:find()
         end
         local p = Sh.split_path(x)
         apps[p] = x
-		print("find, found:", p, x)
+		logger.info("find, found %s, %s", p, x)
         return x
     end)
     .run()
@@ -106,12 +108,12 @@ function F:find()
         for _,d in ipairs(ds) do
 			local p = d.bin .. ": " .. d.name
             apps[p] = d.exec 
-			print("find, found:", p, d.exec)
+			logger.info("find, found %s %s", p, d.exec)
         end
     end)
     .run()
 
-    print("discovered [apps+exes]:", Util:size(apps))
+    logger.info("discovered [apps+exes] %s targets", Util:size(apps))
 	Util:tofile(appcache, apps)
     return apps
 end
@@ -169,7 +171,7 @@ function F:tmenu_kill_proc()
 	f:close()
 	M.IO.read_lines_pout("fzf < /tmp/mxcmd.out"):fmap(function(x)
 		x:fmap(function(y)
-			print(">> got", y)
+			logger.info("tmenu_kill_proc, kill", y)
 			Sh.exec_cmd("kill "..pmap[y])
 		end)
 	end)
