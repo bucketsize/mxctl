@@ -12,8 +12,8 @@ else
 end
 
 Cfg.termopts = {
-	st 		= '-f monospace:pixelsize=16',
-	stterm  = '-f monospace:pixelsize=16 -g 108x24'
+	st 		= '-f monospace:size=10',
+	stterm  = '-f monospace:size=10 -g 108x24'
 }
 
 Cfg.pop_termopts = {
