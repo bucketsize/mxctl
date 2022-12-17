@@ -8,7 +8,7 @@ description = {
    license = "EULA"
 }
 dependencies = {
-   "lua >= 5.3",
+   "lua >= 5.2",
    "minilib",
    "http"
 }
