@@ -6,7 +6,7 @@
 			"/snap/bin",
             "~/.local/share/applications"
 		},
-	  menu_sel = "fzy",
+	  menu_sel = "fzf",
 	  ctrl_bin = "~/.luarocks/bin/mxctl.control",
 	  pop_term = 'stterm',
 	  lux_step = 2,

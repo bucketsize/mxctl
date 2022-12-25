@@ -102,6 +102,7 @@ function F:getwallpaper(provider)
     if ferr then
         logger.info("Error saving file %s, %s", ferr, fcode)
     end
+	Sh.ln (wlprs..name, wlprs.."wallpaper")
     return wlprs..name
 end
 
