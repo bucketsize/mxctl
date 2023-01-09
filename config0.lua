@@ -8,7 +8,7 @@
 		},
 	  menu_sel = "fzf",
 	  ctrl_bin = "~/.luarocks/bin/mxctl.control",
-	  pop_term = 'stterm',
+	  pop_term = {xorg="stterm", wayland="foot"},
 	  lux_step = 2,
       
       -- relative to $HOME

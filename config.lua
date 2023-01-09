@@ -36,20 +36,17 @@ function Cfg.get_renderer()
         return "xorg", xs_dev
     end
 end
-
-if not Cfg.pop_termopts[Cfg.pop_term] then
-	logger.info("config, not supporting %s", Cfg.pop_term)
-	logger.info("config, using `stterm` please install")
-	Cfg.pop_term = "stterm"
+function Cfg.get_pop_term()
+	return Cfg.pop_term[Cfg.get_renderer()]
 end
-
 function Cfg.build_pop_term(cmd)
-	if Cfg.termopts[Cfg.pop_term] == nil then
-		Cfg.termopts[Cfg.pop_term] = ''
+	local pop_term = Cfg.get_pop_term()
+	if Cfg.termopts[pop_term] == nil then
+		Cfg.termopts[pop_term] = ''
 	end
-	return string.format("%s %s %s %s", Cfg.pop_term
-		, Cfg.termopts[Cfg.pop_term]
-		, Cfg.pop_termopts[Cfg.pop_term]
+	return string.format("%s %s %s %s", pop_term
+		, Cfg.termopts[pop_term]
+		, Cfg.pop_termopts[pop_term]
 		, cmd)
 end
 function Cfg.build_term(t)
@@ -68,4 +65,3 @@ function Cfg.build_ctrl_bin(cmd)
 end
 
 return Cfg
-
