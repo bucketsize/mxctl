@@ -98,12 +98,12 @@ function outgrid_config(outgrid, o)
 			o.mode.active = true
 			o.pos  = d.pos
 			o.extra_opts = d.extra_opts
-		else
-			logger.info("outgrid_config, display default (%s,%s)", o.modes[1].x, o.modes[1].y)
-			o.mode = o.modes[1]
-			o.mode.active = true
-			o.pos = {0,0}
-			o.extra_opts = ""
+		-- else
+			-- logger.info("outgrid_config, display default (%s,%s)", o.modes[1].x, o.modes[1].y)
+			-- o.mode = o.modes[1]
+			-- o.mode.active = true
+			-- o.pos = {0,0}
+			-- o.extra_opts = ""
 		end
 	end
 	outgrid[mk_key(o.pos)] = o
