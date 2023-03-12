@@ -28,12 +28,13 @@ Cfg.pop_termopts = {
 }
 
 function Cfg.get_renderer()
-    local xs_dev = os.getenv("DISPLAY")
     local wl_dev = os.getenv("WAYLAND_DISPLAY")
-    if wl_dev == "" then
-        return "wayland", wl_dev, xs_dev
-    else
-        return "xorg", xs_dev
+    if wl_dev then
+        print("get_renderer:", wl_dev)
+		return "wayland"
+	else
+        print("get_renderer:", "xorg")
+        return "xorg"
     end
 end
 function Cfg.get_pop_term()
