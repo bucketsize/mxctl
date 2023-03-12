@@ -4,10 +4,10 @@ local logger = require("minilib.logger").create()
 
 local Cfg
 if Sh.path_exists(Home.."/.config/mxctl/config") then
-	--logger.info("config < existing")
+	logger.info("config < ~/.config/mxctl/config")
 	Cfg = loadfile(Home.."/.config/mxctl/config")()
 else
-	--logger.info("config < default")
+	logger.info("config < default")
 	Cfg = require("mxctl.config0")
 end
 
@@ -56,7 +56,7 @@ function Cfg.build_term(t)
 	end
 	return string.format("%s %s", t
 		, Cfg.termopts[t]
-		, cmd)
+		, nil)
 end
 function Cfg.build_menu_sel(lst)
 	return string.format("%s | %s ", lst, Cfg.menu_sel)

@@ -8,7 +8,7 @@
 		},
 	  menu_sel = "fzf",
 	  ctrl_bin = "~/.luarocks/bin/mxctl.control",
-	  pop_term = {xorg="stterm", wayland="foot"},
+	  pop_term = {xorg="alacritty", wayland="alacritty"},
 	  lux_step = 2,
       
       -- relative to $HOME
@@ -19,22 +19,28 @@
 
 	  displays = {
 		 {
+			name = 'Virtual-0',
+			mode = {x=1280,y=720},
+			pos = {0,0},
+			extra_opts = '--primary --set underscan off'
+		 },
+		 {
 			name = 'DisplayPort-0',
 			mode = {x=1280,y=720},
 			pos = {0,0},
-			extra_opts = '--primary'
+			extra_opts = '--primary --set underscan off'
 		 },
 		 {
 			name = 'eDP-1',
 			mode = {x=1280, y=720},
 			pos = {0,0},
-			extra_opts = '--primary'
+			extra_opts = '--primary --set underscan off'
 		 },
 		 {
-			name = 'HDMI-A-1',
+			name = 'HDMI-A-0',
 			mode = {x=1280, y=720},
 			pos = {0,0},
-			extra_opts = '--primary'
+			extra_opts = '--primary --set underscan off'
 		 },
 		 {
 			name = 'HDMI-A-1',
