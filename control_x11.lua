@@ -82,7 +82,7 @@ end
 local function outgrid_config(outgrid, o)
 	logger:info("outgrid_config: %s", o.name)
 	for _, d in ipairs(DISPLAYS) do
-		logger:info("outgrid_config, DISPLAY: %s", d)
+		logger:info("outgrid_config, DISPLAY: %s", d.name)
 		if o.name == d.name then
 			logger:info("outgrid_config, display config, (%s,%s,%s)", d.name, d.mode.x, d.mode.y)
 			for _, m in ipairs(o.modes) do
@@ -100,12 +100,12 @@ local function outgrid_config(outgrid, o)
 			o.mode.active = true
 			o.pos = d.pos
 			o.extra_opts = d.extra_opts
-			-- else
-			-- logger:info("outgrid_config, display default (%s,%s)", o.modes[1].x, o.modes[1].y)
-			-- o.mode = o.modes[1]
-			-- o.mode.active = true
-			-- o.pos = {0,0}
-			-- o.extra_opts = ""
+		else
+			logger:info("outgrid_config, display default (%s,%s)", o.modes[1].x, o.modes[1].y)
+			o.mode = o.modes[1]
+			o.mode.active = true
+			o.pos = { 0, 0 }
+			o.extra_opts = ""
 		end
 	end
 	outgrid[mk_key(o.pos)] = o
