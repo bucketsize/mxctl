@@ -55,25 +55,25 @@ local function xrandr_info()
 	return ots
 end
 
-local function get2dElem(t, i, j)
-	if t[i] == nil then
-		return nil
-	else
-		return t[i][j]
-	end
-end
-
-local function getElem(t, indexes)
-	if indexes[1] == nil then
-		return nil
-	else
-		if indexes[2] == nil then
-			return t
-		else
-			return getElem(t[indexes[1]], {})
-		end
-	end
-end
+-- local function get2dElem(t, i, j)
+-- 	if t[i] == nil then
+-- 		return nil
+-- 	else
+-- 		return t[i][j]
+-- 	end
+-- end
+--
+-- local function getElem(t, indexes)
+-- 	if indexes[1] == nil then
+-- 		return nil
+-- 	else
+-- 		if indexes[2] == nil then
+-- 			return t
+-- 		else
+-- 			return getElem(t[indexes[1]], {})
+-- 		end
+-- 	end
+-- end
 
 local function mk_key(l)
 	return Util:join("_", l)
@@ -151,7 +151,7 @@ local function xrandr_configs()
 	end
 
 	local outgrid_ctl = {}
-	for otc, o in pairs(outputs) do
+	for _, o in pairs(outputs) do
 		outgrid_controls_config(outgrid, outgrid_ctl, o)
 	end
 	return outgrid, outgrid_ctl
@@ -159,7 +159,7 @@ end
 
 local Funs = {}
 function Funs:setup_video()
-	local outgrid, outgrid_ctl = xrandr_configs()
+	local _, outgrid_ctl = xrandr_configs()
 	for _, d in pairs(outgrid_ctl) do
 		if d.active then
 			Sh.exec_cmd(d.on)
@@ -232,79 +232,6 @@ function Funs:scr_lock_if()
 	if iv == nil then
 		Sh.sh(xcmd.scr_lock())
 	end
-end
-local _LOGOUT_CMD = {
-	bspwm = "bspc quit",
-	lg3d = "bspc quit",
-	i3wm = "i3-msg exit",
-	openbox = "openbox --exit",
-	xmonad = "",
-}
-
-function Funs:tmenu_exit()
-	local wminf = Util:wminfo()
-	local exit_with = {
-		lock = xcmd.scr_lock_cmd(),
-		logout = _LOGOUT_CMD[wminf.wm:lower()],
-		reboot = "systemctl reboot",
-		shutdown = "systemctl poweroff -i",
-		hibernate = "systemctl hibernate",
-		suspend = "systemctl suspend",
-	}
-
-	local opts = {}
-	for k, _ in pairs(exit_with) do
-		table.insert(opts, k)
-	end
-
-	Pr.pipe()
-		.add(Sh.exec(menu_sel(string.format('echo "%s"', table.concat(opts, "\n")))))
-		.add(function(name)
-			if name then
-				if exit_with[name] ~= "" then
-					Sh.sh(exit_with[name])
-				else
-					logger:info("no %s for %s", name, wminf.wm)
-				end
-			end
-			return name
-		end)
-		.run()
-end
-function Funs:dmenu_exit()
-	Sh.sh(pop_term(ctrl_bin("tmenu_exit")))
-end
-
-function brightness(delta)
-	logger:info("brightness", delta)
-	Pr.pipe()
-		.add(Sh.exec("ls /sys/class/backlight"))
-		.add(function(bf)
-			if bf then
-				local max = tonumber(Ut:head_file("/sys/class/backlight/" .. bf .. "/max_brightness"))
-				local cur = tonumber(Ut:head_file("/sys/class/backlight/" .. bf .. "/brightness"))
-				local tar = math.floor(cur + delta * max / 100)
-				if tar > max then
-					tar = max
-				end
-				if tar < 0 then
-					tar = cur
-				end
-				logger:info("brightness", delta, bf, cur, tar, max)
-				local h = assert(io.open("/sys/class/backlight/" .. bf .. "/brightness", "w"))
-				h:write(tar)
-				h:close()
-			end
-		end)
-		.run()
-end
-
-function Funs:brightness_up()
-	brightness(Cfg.lux_step)
-end
-
-function Funs:brightness_down()
-	brightness(-Cfg.lux_step)
 end
 
 return Funs
