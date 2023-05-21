@@ -1,14 +1,14 @@
-require "luarocks.loader"
+require("luarocks.loader")
 
-local Sh   = require('minilib.shell')
-local Pr   = require('minilib.process')
-local Util = require('minilib.util')
-local Ut   = Util
-local Cfg  = require('mxctl.config')
-local xcmd = require('mxctl.control_x11_min')
+local Sh = require("minilib.shell")
+local Pr = require("minilib.process")
+local Util = require("minilib.util")
+local Ut = Util
+local Cfg = require("mxctl.config")
+local xcmd = require("mxctl.control_x11_min")
 local logger = require("minilib.logger").create()
 
-local pop_term = Cfg.build_pop_term 
+local pop_term = Cfg.build_pop_term
 local menu_sel = Cfg.build_menu_sel
 local ctrl_bin = Cfg.build_ctrl_bin
 
@@ -28,7 +28,7 @@ local DISPLAY_OFF = [[
 			--off
 ]]
 
-function xrandr_info()
+local function xrandr_info()
 	local h = assert(io.popen("xrandr -q"))
 	local ots = {}
 
@@ -36,17 +36,17 @@ function xrandr_info()
 	for line in h:lines() do
 		local otc = line:match("^([%w-]+) connected ")
 		if otc then
-			logger.info("xrandr_info, parse connected %s", otc)
+			logger:info("xrandr_info, parse connected %s", otc)
 			ot = otc
 			if ots[ot] == nil then
-				ots[ot] = {modes={}, name=ot}
+				ots[ot] = { modes = {}, name = ot }
 			end
 		else
 			if ot then
 				local mx, my = string.match(line, "%s+(%d+)x(%d+)")
 				if my then
-					logger.info("xrandr_info, mode (%s,%s,%s)", ot, mx, my)
-					table.insert(ots[ot].modes, {x=tonumber(mx), y=tonumber(my), active=false})
+					logger:info("xrandr_info, mode (%s,%s,%s)", ot, mx, my)
+					table.insert(ots[ot].modes, { x = tonumber(mx), y = tonumber(my), active = false })
 				end
 			end
 		end
@@ -55,7 +55,7 @@ function xrandr_info()
 	return ots
 end
 
-function get2dElem(t, i, j)
+local function get2dElem(t, i, j)
 	if t[i] == nil then
 		return nil
 	else
@@ -63,7 +63,7 @@ function get2dElem(t, i, j)
 	end
 end
 
-function getElem(t, indexes)
+local function getElem(t, indexes)
 	if indexes[1] == nil then
 		return nil
 	else
@@ -75,16 +75,18 @@ function getElem(t, indexes)
 	end
 end
 
-function mk_key(l) 
+local function mk_key(l)
 	return Util:join("_", l)
 end
 
-function outgrid_config(outgrid, o)
+local function outgrid_config(outgrid, o)
+	logger:info("outgrid_config: %s", o.name)
 	for _, d in ipairs(DISPLAYS) do
+		logger:info("outgrid_config, DISPLAY: %s", d)
 		if o.name == d.name then
-			logger.info("outgrid_config, display config, (%s,%s,%s)",d.name, d.mode.x, d.mode.y)
+			logger:info("outgrid_config, display config, (%s,%s,%s)", d.name, d.mode.x, d.mode.y)
 			for _, m in ipairs(o.modes) do
-				logger.info("\t mode=", m.x, m.y, type(m.x), type(d.mode.y))
+				logger:info("\t mode=%dx%d :: %sx%s", m.x, m.y, type(m.x), type(d.mode.y))
 				if (m.x == d.mode.x) and (m.y == d.mode.y) then
 					o.mode = m
 					break
@@ -92,14 +94,14 @@ function outgrid_config(outgrid, o)
 			end
 
 			if not o.mode then
-				logger.info("outgrid_config, display config not found, defaulting (%s,%s)", o.modes[1].x, o.modes[1].y)
+				logger:info("outgrid_config, display config not found, defaulting (%s,%s)", o.modes[1].x, o.modes[1].y)
 				o.mode = o.modes[1]
 			end
 			o.mode.active = true
-			o.pos  = d.pos
+			o.pos = d.pos
 			o.extra_opts = d.extra_opts
-		-- else
-			-- logger.info("outgrid_config, display default (%s,%s)", o.modes[1].x, o.modes[1].y)
+			-- else
+			-- logger:info("outgrid_config, display default (%s,%s)", o.modes[1].x, o.modes[1].y)
 			-- o.mode = o.modes[1]
 			-- o.mode.active = true
 			-- o.pos = {0,0}
@@ -109,10 +111,10 @@ function outgrid_config(outgrid, o)
 	outgrid[mk_key(o.pos)] = o
 end
 
-function outgrid_controls_config(outgrid, outgrid_ctl, o)
+local function outgrid_controls_config(outgrid, outgrid_ctl, o)
 	for _, m in pairs(o.modes) do
 		local x, y = o.pos[1], o.pos[2]
-		local off_xo, off_yo = outgrid[mk_key({x-1, y})], outgrid[mk_key({x, y-1})]
+		local off_xo, off_yo = outgrid[mk_key({ x - 1, y })], outgrid[mk_key({ x, y - 1 })]
 		local off_x, off_y
 		if off_xo == nil then
 			off_x = 0
@@ -125,11 +127,7 @@ function outgrid_controls_config(outgrid, outgrid_ctl, o)
 			off_y = off_xo.mode.y * y
 		end
 
-		local dOn = string.format(DISPLAY_ON
-			, o.name
-			, m.x, m.y
-			, off_x, off_y
-			, o.extra_opts)
+		local dOn = string.format(DISPLAY_ON, o.name, m.x, m.y, off_x, off_y, o.extra_opts)
 		local dOff = string.format(DISPLAY_OFF, o.name)
 
 		local flag = ""
@@ -139,16 +137,16 @@ function outgrid_controls_config(outgrid, outgrid_ctl, o)
 
 		local ar = m.x / m.y
 
-		outgrid_ctl[string.format("%s (%dx%d) <%d,%d> %.1f %s"
-			, o.name, m.x, m.y, off_x, off_y, ar, flag)] = {on=dOn, off=dOff, active=m.active}
+		outgrid_ctl[string.format("%s (%dx%d) <%d,%d> %.1f %s", o.name, m.x, m.y, off_x, off_y, ar, flag)] =
+			{ on = dOn, off = dOff, active = m.active }
 	end
 end
 
-function xrandr_configs()
+local function xrandr_configs()
 	local outputs = xrandr_info()
 	local outgrid = {}
 	for otc, o in pairs(outputs) do
-		logger.info("xrandr_configs, item %s, %s", otc, o)
+		logger:info("xrandr_configs, item %s, %s", otc, o.name)
 		outgrid_config(outgrid, o)
 	end
 
@@ -162,7 +160,7 @@ end
 local Funs = {}
 function Funs:setup_video()
 	local outgrid, outgrid_ctl = xrandr_configs()
-	for _,d in pairs(outgrid_ctl) do
+	for _, d in pairs(outgrid_ctl) do
 		if d.active then
 			Sh.exec_cmd(d.on)
 		end
@@ -171,7 +169,7 @@ end
 
 function Funs:tmenu_setup_video()
 	local _, vgridctl = xrandr_configs()
-	local opts = table.concat(Util:keys(vgridctl), '\n')
+	local opts = table.concat(Util:keys(vgridctl), "\n")
 
 	Pr.pipe()
 		.add(Sh.exec(menu_sel(string.format('echo "%s"', opts))))
@@ -179,8 +177,8 @@ function Funs:tmenu_setup_video()
 			if id then
 				Sh.exec_cmd(vgridctl[id].on)
 			end
-		end
-		)			.run()
+		end)
+		.run()
 end
 
 function Funs:dmenu_setup_video()
@@ -191,32 +189,29 @@ function Funs:tmenu_select_window()
 	local ws = {}
 	local wl = {}
 	Pr.pipe()
-		.add(Sh.exec('wmctrl -l'))
-		.add(Sh.grep('(%w+)%s+(%d+)%s+([%w%p]+)%s+(.*)'))
+		.add(Sh.exec("wmctrl -l"))
+		.add(Sh.grep("(%w+)%s+(%d+)%s+([%w%p]+)%s+(.*)"))
 		.add(function(arr)
 			if arr then
-				ws[arr[4]]= {id = arr[1], ws = arr[2], name = arr[4]}
+				ws[arr[4]] = { id = arr[1], ws = arr[2], name = arr[4] }
 				return arr[4]
 			end
-		end
-		)
+		end)
 		.add(function(name)
 			if name then
 				table.insert(wl, name)
 			end
-		end
-		)
+		end)
 		.run()
 
-	local wl_opts = table.concat(wl, '\n')
+	local wl_opts = table.concat(wl, "\n")
 	Pr.pipe()
 		.add(Sh.exec(menu_sel(string.format('echo "%s"', wl_opts))))
 		.add(function(name)
 			if name then
-				Sh.sh('wmctrl -ia ' .. ws[name].id)
+				Sh.sh("wmctrl -ia " .. ws[name].id)
 			end
-		end
-		)
+		end)
 		.run()
 end
 function Funs:dmenu_select_window()
@@ -225,37 +220,36 @@ end
 function Funs:scr_lock_if()
 	local iv = nil
 	Pr.pipe()
-		.add(Sh.exec('pactl list sinks'))
-		.add(Sh.grep('RUNNING'))
+		.add(Sh.exec("pactl list sinks"))
+		.add(Sh.grep("RUNNING"))
 		.add(Sh.echo())
 		.add(function(x)
 			if x then
 				iv = x
 			end
-		end
-		)
+		end)
 		.run()
 	if iv == nil then
 		Sh.sh(xcmd.scr_lock())
 	end
 end
 local _LOGOUT_CMD = {
-	bspwm   = "bspc quit",
-	lg3d    = "bspc quit",
-	i3wm    = "i3-msg exit",
+	bspwm = "bspc quit",
+	lg3d = "bspc quit",
+	i3wm = "i3-msg exit",
 	openbox = "openbox --exit",
-	xmonad  = "",
+	xmonad = "",
 }
 
 function Funs:tmenu_exit()
 	local wminf = Util:wminfo()
 	local exit_with = {
-		lock      = xcmd.scr_lock_cmd(),
-		logout    = _LOGOUT_CMD[wminf.wm:lower()], 
-		reboot    = "systemctl reboot",
-		shutdown  = "systemctl poweroff -i",
+		lock = xcmd.scr_lock_cmd(),
+		logout = _LOGOUT_CMD[wminf.wm:lower()],
+		reboot = "systemctl reboot",
+		shutdown = "systemctl poweroff -i",
 		hibernate = "systemctl hibernate",
-		suspend   = "systemctl suspend",
+		suspend = "systemctl suspend",
 	}
 
 	local opts = {}
@@ -264,18 +258,17 @@ function Funs:tmenu_exit()
 	end
 
 	Pr.pipe()
-		.add(Sh.exec(menu_sel(string.format('echo "%s"', table.concat(opts, '\n')))))
+		.add(Sh.exec(menu_sel(string.format('echo "%s"', table.concat(opts, "\n")))))
 		.add(function(name)
 			if name then
 				if exit_with[name] ~= "" then
 					Sh.sh(exit_with[name])
 				else
-					logger.info("no %s for %s", name, wminf.wm)
+					logger:info("no %s for %s", name, wminf.wm)
 				end
 			end
 			return name
-		end
-		)
+		end)
 		.run()
 end
 function Funs:dmenu_exit()
@@ -283,27 +276,26 @@ function Funs:dmenu_exit()
 end
 
 function brightness(delta)
-	logger.info("brightness", delta)
+	logger:info("brightness", delta)
 	Pr.pipe()
 		.add(Sh.exec("ls /sys/class/backlight"))
 		.add(function(bf)
 			if bf then
-				local max = tonumber(Ut:head_file("/sys/class/backlight/"..bf.."/max_brightness"))
-				local cur = tonumber(Ut:head_file("/sys/class/backlight/"..bf.."/brightness"))
-				local tar = math.floor(cur + delta*max/100)
+				local max = tonumber(Ut:head_file("/sys/class/backlight/" .. bf .. "/max_brightness"))
+				local cur = tonumber(Ut:head_file("/sys/class/backlight/" .. bf .. "/brightness"))
+				local tar = math.floor(cur + delta * max / 100)
 				if tar > max then
 					tar = max
 				end
 				if tar < 0 then
 					tar = cur
 				end
-				logger.info("brightness", delta, bf, cur, tar, max)
-				local h = assert(io.open("/sys/class/backlight/"..bf.."/brightness", "w"))
+				logger:info("brightness", delta, bf, cur, tar, max)
+				local h = assert(io.open("/sys/class/backlight/" .. bf .. "/brightness", "w"))
 				h:write(tar)
 				h:close()
 			end
-		end
-		)
+		end)
 		.run()
 end
 
